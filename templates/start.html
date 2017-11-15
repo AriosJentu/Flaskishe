@@ -1,0 +1,57 @@
+<script type="text/javascript">
+	
+	function load_base() {
+		var combobox = document.getElementById("List");
+		var seltext = combobox.options[combobox.selectedIndex].text;
+		var port = window.location.port;
+		var locate = "http://"+window.location.hostname;
+		if (port > 1000) {
+			locate += ":"+port;
+		}
+		locate += "/table/"+seltext;
+		window.location = locate;
+	}
+
+</script>
+
+<head>
+	<title>Базы данных</title>
+</head>
+
+<body>
+	<center>
+
+		<form name="Bases" action="/" method='POST'>
+			
+			<select id="List">
+				{% for item in items %}
+				<option value="{{ item }}" SELECTED>{{ item }}</option>
+				{% endfor %}
+			</select>
+			<button name="go" type="submit" onclick="load_base();">Перейти</button>
+
+		</form>
+
+
+		{% if name %}
+			<h1>Запрос {{ name }}</h1>
+			<table border="1" cellspacing="0">
+
+				<tr>
+				{% for title in heading %}
+					<th><center>{{ title|safe }}</center></th>
+				{% endfor %}	
+				</tr>
+
+				{% for items in table %}
+				<tr>
+					{{ items|safe }}
+				</tr>
+				{% endfor %}
+			</table>
+		{% else %}
+			<h1>Данная страница пуста</h1>
+		{% endif %}
+
+	</center>
+</body>
