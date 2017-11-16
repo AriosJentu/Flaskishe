@@ -1,0 +1,21 @@
+@font-face {
+	font-family: opensans;
+	src: url("../static/OpenSans.ttf");
+}
+
+head {
+	font-family: opensans;
+	font-size: 12pt;
+}
+
+#tab {
+	border: 1px solid;
+	text-align: left;
+	border-collapse: collapse;
+	width: 100%;
+}
+#elem {
+	border: 1px solid;
+	text-align: left;
+	padding: 15px;
+}

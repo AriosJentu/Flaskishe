@@ -1,50 +1,42 @@
-<script type="text/javascript">
-	
-	function load_base() {
-		var combobox = document.getElementById("List");
-		var seltext = combobox.options[combobox.selectedIndex].text;
-		var port = window.location.port;
-		var locate = "http://"+window.location.hostname;
-		if (port > 1000) {
-			locate += ":"+port;
-		}
-		locate += "/table/"+seltext;
-		window.location = locate;
-	}
-
-</script>
-
 <head>
-	<title>Базы данных</title>
+	<title>База данных</title>
+	<!--script type="text/javascript" src="../static/script/jquery.js"></script-->
+	<link rel="stylesheet" href="../static/css/style.css">
 </head>
 
 <body>
 	<center>
 
-		<form name="Bases" action="/" method='POST'>
+		<form name="Bases" action="/" method='GET'>
 			
-			<select id="List">
+			<table>
+				<tr>
 				{% for item in items %}
-				<option value="{{ item }}" SELECTED>{{ item }}</option>
+					<th><a href="/table/{{ item }}">{{ item }}</a></th>
 				{% endfor %}
-			</select>
-			<button name="go" type="submit" onclick="load_base();">Перейти</button>
+				</tr>
+			</table>
+
+			<!--select name="List">
+				<option value="{{ item }}" SELECTED>{{ item }}</option>
+			</select-->
+			<!--button name="go" type="submit">Перейти</button-->
 
 		</form>
 
 
 		{% if name %}
 			<h1>Запрос {{ name }}</h1>
-			<table border="1" cellspacing="0">
+			<table id="tab">
 
-				<tr>
+				<tr id="elem">
 				{% for title in heading %}
-					<th><center>{{ title|safe }}</center></th>
+					<th id="elem">{{ title|safe }}</th>
 				{% endfor %}	
 				</tr>
 
 				{% for items in table %}
-				<tr>
+				<tr id="elem">
 					{{ items|safe }}
 				</tr>
 				{% endfor %}
