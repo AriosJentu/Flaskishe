@@ -1,3 +1,8 @@
+"""class Column:
+
+	def __init__(self, name, table):
+		pass"""
+
 from flask import Flask, render_template
 import sqlite3 as db
 
@@ -9,68 +14,109 @@ fetch_names = cursr.fetchall()
 for i in range(len(fetch_names)):
 	tables.append( (i, fetch_names[i][0]) )
 
-custom_tables = [(len(tables), "Schedule")]
+column_names = {
+	
+	#Column Name 	#From Table 	#Russian Name 		#Width
+	"LessonID":		["Lessons", 	"Пара", 			80		],
+	"SubjID":		["Subjects", 	"Предмет", 			200		],
+	"AudienceID":	["Audiences", 	"Аудитория",		90		],
+	"GroupID":		["Groups", 		"Группа", 			90		],
+	"TeacherID":	["Teachers", 	"Преподаватель", 	150		],
+	"TypeID":		["LessonTypes", "Тип", 				60		],
+	"WeekdayID":	["Weekdays", 	"День Недели",		120		]
+
+}
+
+table_column_names = {
+	
+	#Table Name 	#Pairs ('Russian Name', 'Width')
+	"Audiences": 	[("Аудитории", 90)],
+	"Groups":		[("Группы", 110)],
+	"LessonTypes":	[("Типы Занятий", 70)],
+	"Lessons":		[("Пары", 80), ("Индексы", 80)],
+	"Subjects":		[("Предметы", 200)],
+	"Teachers":		[("Преподаватели", 100)],
+	"Weekdays":		[("Дни Недели", 100), ("Индексы", 60)]
+}
 
 def load_page(page, **kwargs):
-	return render_template(page, items=[i[1] for i in tables+custom_tables], **kwargs)
+	return render_template(page, items=[i[1] for i in tables], **kwargs)
 
 def gen_items(table=[]):
 
 	items = []
 	for i in table:
-		items.append('<td id="elem">'+'</td><td id="elem">'.join([str(k) for k in i])+"</td>")
+		items.append('<td id="elem">' + '</td><td id="elem">'.join([str(k) for k in i]) + "</td>")
 	
 	return items
 
 def generating_table(table_name=tables[0][1]):
 
 	tabl = [i[1] for i in tables]
-	custom = [i[1] for i in custom_tables]
 	if table_name in tabl:
 
 		cursr.execute("PRAGMA table_info(%s)"%table_name)
 		header = []
-		for i in cursr.fetchall():
-			header.append(i[1])
+		
+		header_data = cursr.fetchall()
+		for i in header_data:
+			if i[1] != "ID":
+				header.append(i[1])
 
-		cursr.execute("SELECT * FROM "+table_name)
+		####QUERY_GENERATOR ########################
+		
+		query = "SELECT "
+		for i in header:
+			if i in column_names.keys():
+				query += "(SELECT Name FROM " + column_names[i][0] + " WHERE ID == S." + i + ") AS '" + column_names[i][1] + "', "
+			else:
+				query += i+", "
 
+		query = query[:-2] + " "
+		query += "FROM " + table_name + " AS S"
+		
+		if "WeekdayID" in header:
+			query += ", Weekdays AS W WHERE W.ID == S.WeekdayID ORDER BY W.ID"
+
+		####END_QUERY_GENERATOR ####################
+
+		#Get column widthes:
+		column_widthes = []
+		if table_name in table_column_names.keys():
+
+			#From table's column widthes
+			column_widthes = [i[1] for i in table_column_names[table_name]]
+		
+		else:
+			
+			#As header width
+			for i in range(len(header)):
+				if header[i] in column_names.keys():
+					column_widthes.append(column_names[header[i]][2])
+
+
+		#Get translated header:
+		if table_name in table_column_names.keys():
+			
+			#from table's column names
+			header = [i[0] for i in table_column_names[table_name]]
+		else:
+
+			#As names from table where ID translates to Names
+			for i in range(len(header)):
+				if header[i] in column_names.keys():
+					header[i] = column_names[header[i]][1]
+
+		#Item generator
 		items = []	
-		for i in cursr.fetchall():
-			items.append(i)
+		cursr.execute(query) 	#Executing current query
+		data = cursr.fetchall()
 
+		#Replacing cycle (Nones to default values for 'None')
+		for i in data:
+			items.append(["<i>Неизвестно</i>" if j == None else j for j in i])
 
-	elif table_name in custom:
-
-		if table_name == custom[0]:
-			header = ["Пара", "Предмет", "Аудитория", "Группа", "Преподаватель", "Тип", "День"]
-			
-			cursr.execute("""
-				SELECT 
-					(SELECT L.Name FROM Lessons AS L WHERE L.ID == S.LessonID) AS Lesson,
-					(SELECT Sj.Name FROM Subjects AS Sj WHERE Sj.ID == S.SubjID) AS Subject,
-					(SELECT A.Name FROM Audiences AS A WHERE A.ID == S.AudienceID) AS Audience,
-					(SELECT G.Name FROM Groups AS G WHERE G.ID == S.GroupID) AS LGroup,
-					(SELECT T.Name FROM Teachers AS T WHERE T.ID == S.TeacherID) AS Teacher,
-					(SELECT Tp.Name FROM LessonTypes AS Tp WHERE Tp.ID == S.TypeID) AS Type,
-					(SELECT W.Name FROM Weekdays AS W WHERE W.ID == S.WeekdayID) AS Weekday
-				FROM SchedItems AS S, Weekdays AS W
-				WHERE Weekday == W.Name
-				ORDER BY W.ID
-			""")
-
-			items = []
-			for i in cursr.fetchall():
-				column = []
-				for j in i:
-					if j == None:
-						j = "<i>Неизвестно</i>"
-					column.append(j)
-				items.append(column)
-			for i in items:
-				print(i)
-			
-	return header, gen_items(items), table_name
+		return header, gen_items(items), table_name, column_widthes
 
 
 app = Flask(__name__)
@@ -81,8 +127,8 @@ def hello():
 
 @app.route("/table/<table>", methods=["GET", "POST"])
 def open(table="Audiences"):
-	heading, gen, name = generating_table(table)
-	return load_page("start.html", heading=heading, name=name, table=gen)
+	heading, gen, name, widthes = generating_table(table)
+	return load_page("start.html", heading=heading, name=name, table=gen, widthes=widthes)
 
 if __name__ == "__main__":
 	app.run()

@@ -29,6 +29,10 @@
 			<h1>Запрос {{ name }}</h1>
 			<table id="tab">
 
+				{% for width in widthes%}
+					<col width="{{ width }}">
+				{% endfor %}
+
 				<tr id="elem">
 				{% for title in heading %}
 					<th id="elem">{{ title|safe }}</th>

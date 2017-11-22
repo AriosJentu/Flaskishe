@@ -1,19 +1,15 @@
-@font-face {
-	font-family: opensans;
-	src: url("../static/OpenSans.ttf");
-}
-
-head {
-	font-family: opensans;
-	font-size: 12pt;
+@import url(//fonts.googleapis.com/css?family=Open+Sans);
+body {
+	font-family: 'Open Sans';
+	font-size: 20;
 }
 
 #tab {
-	border: 1px solid;
+	font-size: 14;
 	text-align: left;
 	border-collapse: collapse;
-	width: 100%;
 }
+
 #elem {
 	border: 1px solid;
 	text-align: left;
