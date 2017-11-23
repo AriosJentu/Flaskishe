@@ -1,7 +1,9 @@
-"""class Column:
+class Column:
 
-	def __init__(self, name, table):
-		pass"""
+	def __init__(self, table_from, name, width):
+		self.table = table_from
+		self.name = name
+		self.width = width
 
 from flask import Flask, render_template
 import sqlite3 as db
@@ -16,20 +18,19 @@ for i in range(len(fetch_names)):
 
 column_names = {
 	
-	#Column Name 	#From Table 	#Russian Name 		#Width
-	"LessonID":		["Lessons", 	"Пара", 			80		],
-	"SubjID":		["Subjects", 	"Предмет", 			200		],
-	"AudienceID":	["Audiences", 	"Аудитория",		90		],
-	"GroupID":		["Groups", 		"Группа", 			90		],
-	"TeacherID":	["Teachers", 	"Преподаватель", 	150		],
-	"TypeID":		["LessonTypes", "Тип", 				60		],
-	"WeekdayID":	["Weekdays", 	"День Недели",		120		]
+	"LessonID":		Column("Lessons", "Пара", 80),
+	"SubjID":		Column("Subjects", "Предмет", 200),
+	"AudienceID":	Column("Audiences", "Аудитория", 90),
+	"GroupID":		Column("Groups", "Группа", 90),
+	"TeacherID":	Column("Teachers", "Преподаватель", 150),
+	"TypeID":		Column("LessonTypes", "Тип", 60),
+	"WeekdayID":	Column("Weekdays", "День Недели", 120)
 
 }
 
 table_column_names = {
 	
-	#Table Name 	#Pairs ('Russian Name', 'Width')
+	#Table Name 	#Pairs ('Column Title', 'Width')
 	"Audiences": 	[("Аудитории", 90)],
 	"Groups":		[("Группы", 110)],
 	"LessonTypes":	[("Типы Занятий", 70)],
@@ -68,7 +69,7 @@ def generating_table(table_name=tables[0][1]):
 		query = "SELECT "
 		for i in header:
 			if i in column_names.keys():
-				query += "(SELECT Name FROM " + column_names[i][0] + " WHERE ID == S." + i + ") AS '" + column_names[i][1] + "', "
+				query += "(SELECT Name FROM " + column_names[i].table + " WHERE ID == S." + i + ") AS '" + column_names[i].name + "', "
 			else:
 				query += i+", "
 
@@ -92,7 +93,7 @@ def generating_table(table_name=tables[0][1]):
 			#As header width
 			for i in range(len(header)):
 				if header[i] in column_names.keys():
-					column_widthes.append(column_names[header[i]][2])
+					column_widthes.append(column_names[header[i]].width)
 
 
 		#Get translated header:
@@ -105,7 +106,7 @@ def generating_table(table_name=tables[0][1]):
 			#As names from table where ID translates to Names
 			for i in range(len(header)):
 				if header[i] in column_names.keys():
-					header[i] = column_names[header[i]][1]
+					header[i] = column_names[header[i]].name
 
 		#Item generator
 		items = []	
