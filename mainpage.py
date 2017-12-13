@@ -158,9 +158,6 @@ def add_record(size):
 
 	if size > 0:
 		query = "INSERT INTO "+SELECTED_TABLE+" VALUES (" + ("-1, "*size)[:-2] + ")"
-		print("APPEND QUERY")
-		print(query)
-		print("EXECUTING APPEND")
 		cursr.execute(query)
 
 	studb.commit()
@@ -177,16 +174,11 @@ def remove_record(elements):
 	query = "DELETE FROM "+SELECTED_TABLE+" WHERE "
 
 	indx = -1
-	print()
-	print(elements)
-	print()
 	for i in range(len(TABLE_DATA)):
 		print(TABLE_DATA[i])
 		if elements == TABLE_DATA[i]:
 			indx = i
 			break
-
-	print(indx)
 
 	for i in range(len(TABLE_COLUMNS)):
 		query += TABLE_COLUMNS[i] + " == '" + TABLE_DEFAULT_DATA[indx][i] + "' "
@@ -194,10 +186,7 @@ def remove_record(elements):
 		if i < len(TABLE_COLUMNS)-1:
 			query += "AND "
 
-	print("REMOVE QUERY")
-	print(query)
 	if len(elements) == len(TABLE_COLUMNS) and indx != -1:
-		print("EXECUTING REMOVE")
 		cursr.execute(query)
 
 	studb.commit()
@@ -209,7 +198,6 @@ def update_record(upd_from, upd_to):
 		if v == "<i>Неизвестно</i>":
 			upd_from[i] = "None"
 
-
 	query = "UPDATE "+SELECTED_TABLE +" SET "
 
 	indx = -1
@@ -217,9 +205,6 @@ def update_record(upd_from, upd_to):
 		if upd_from == TABLE_DATA[i]:
 			indx = i
 			break
-
-	print(indx)
-	print(upd_from)
 
 	for i in range(len(TABLE_COLUMNS)):
 		query += TABLE_COLUMNS[i] + " = '" + upd_to[i] + "'"
@@ -235,10 +220,7 @@ def update_record(upd_from, upd_to):
 		if i < len(TABLE_COLUMNS)-1:
 			query += "AND "
 
-	print("UPDATE QUERY")
-	print(query)
 	if len(upd_to) == len(TABLE_COLUMNS) and indx != -1:
-		print("EXECUTING UPDATE")
 		cursr.execute(query)
 
 	studb.commit()
@@ -268,8 +250,6 @@ def generating_table(table_name=tables[0][1]):
 		header = []
 		
 		header_data = cursr.fetchall()
-		print("HEADER DATA:")
-		print(header_data)
 		for i in header_data:
 			header.append(i[1])
 
@@ -405,15 +385,6 @@ def generating_table(table_name=tables[0][1]):
 					header[i] = header[i][:-1]
 				header[i] += arrows["asc" if ORDERED_BY[0] == "+" else "desc"]
 
-
-		print()
-		print()
-		print(header)
-		print(query_selector)
-		print(basequery)
-		print()
-		print()
-
 		#Count
 		cursr.execute("SELECT Count(*) FROM ("+basequery[:basequery.find("LIMIT")]+")")
 		data = cursr.fetchall()
@@ -434,15 +405,11 @@ def generating_table(table_name=tables[0][1]):
 			ordertype = "ASC" if ORDERED_BY[0] == "+" else "DESC"
 
 			name = ORDERED_BY[1:] + arrows["asc" if ORDERED_BY[0] == "+" else "desc"]
-			print(header)
-			print(TABLE_COLUMNS)
-			print(name)
 			cname = TABLE_COLUMNS[header.index(name)]
 
 			ordered_by = "ORDER BY "+ cname +" "+ordertype
 		
 		default_exec = "SELECT * FROM " + SELECTED_TABLE + " " + ordered_by + " LIMIT " + str(PAGE_SIZE) + " OFFSET " + str(PAGE_SIZE*(PAGE_NUM-1))
-		print(default_exec)
 		cursr.execute(default_exec)
 		TABLE_DEFAULT_DATA = [[str(j) for j in i] for i in cursr.fetchall()]
 
@@ -455,11 +422,6 @@ def generating_table(table_name=tables[0][1]):
 
 		for i in TABLE_DEFAULT_DATA:
 			defitems.append(["-1" if j == "None" else j for j in i])
-
-		print()
-		print("DEFITEMS IS:")
-		print(defitems)
-		print()
 
 		return header, query_selector, gen_items(items), gen_items(defitems), table_name, column_widthes
 
@@ -476,11 +438,7 @@ def open():
 	
 	local_query = Converter.decode(request.args.get("query", default=Converter.encode("[[]]"), type=str)) #get query from adress line, converted to ascii executable string
 	
-	IS_EDIT_MODE = request.args.get("edit", default=False, type=bool) or IS_EDIT_MODE
-	
-	print()
-	print("Local Query:")
-	print(local_query)
+	IS_EDIT_MODE = request.args.get("edit", default=str(IS_EDIT_MODE), type=str) == "True"
 
 	for i in range(QUERIES_COUNT):
 
@@ -488,29 +446,16 @@ def open():
 		qcompare = request.form.get("QueryCmp"+str(i)) or ">"
 		qinput = request.form.get("QueryIn"+str(i)) or ""
 		
-		print(qcolumn, qinput, qcompare)
 		curquery = Query(qcolumn, qcompare, qinput)
 		if qinput != "":
-			print("Appending")
 			QUERIES_TABLE.append(curquery)
 
 	#if table not initializate, and length of link query is good to convert it back to ascii code
-	print()
-	print("Current Query:")
-	print(CUR_QUERY)
 	if QUERIES_TABLE == [] and len(CUR_QUERY) > 24:
 		QUERIES_TABLE = [Query(*i) for i in eval(Converter.decode(CUR_QUERY))]
 
 	elif QUERIES_TABLE == [] and len(CUR_QUERY) == 24:
 		CUR_QUERY = Converter.encode(local_query) 
-
-	print()
-	print("Query After:")
-	print(CUR_QUERY)
-
-	print()
-	print("Printing all list of queries")
-	print(str([eval(str(i)) for i in QUERIES_TABLE]))
 
 	CUR_QUERY = Converter.encode(str([eval(str(i)) for i in QUERIES_TABLE])) #current query, converted to link version
 
@@ -535,17 +480,11 @@ def open():
 		IS_EDIT_MODE = not IS_EDIT_MODE
 
 	elif "AddRecord" in request.form:
-		print("TABLE_COLUMNS:")
-		print(TABLE_COLUMNS)
 		add_record(len(TABLE_COLUMNS))
-		print(TABLE_DATA)
 
-
-	print("REQUEST FORM:")
 	for i in request.form:
-		print(i)
+
 		if "Title" in i:
-			print("Title found, its '"+i[5:]+"'")
 			asc = i.find(arrows["asc"]) >= 0
 			desc = i.find(arrows["desc"]) >= 0
 
@@ -560,41 +499,26 @@ def open():
 		elif "Edit" in i:
 			
 				val = eval(i[4:])
-				print(val)
-				print()
 				if val not in EDITED_RECORDS:
 					EDITED_RECORDS.append(val)
 				else:
 					val_to = []
 					for k in range(len(TABLE_COLUMNS)):
-						print()
-						print()
-						print("Changing"+str(val)+"Column"+str(k))
-						print("Changing"+str(val)+"Column"+str(k) in request.form)
-						print()
-						print()
 
 						if "Changing"+str(val)+"Column"+str(k) in request.form:
 							val_to.append(request.form.get("Changing"+str(val)+"Column"+str(k)))
 
-					print(val_to)
 					update_record(val, val_to)
 					EDITED_RECORDS.remove(val)
 
 		elif "Delete" in i:
 
 				val = eval(i[6:])
-				print(val)
-				print()
 				if val in EDITED_RECORDS:
 					EDITED_RECORDS.remove(val)
 				else:
 					remove_record(val)
 	
-	print("REQUEST FORM ENDED")
-	print(EDITED_RECORDS)
-
-
 
 	ORDERED_BY = ORDERED_BY or (None if orderby == "None" else orderby)
 	
