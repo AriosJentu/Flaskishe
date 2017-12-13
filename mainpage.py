@@ -87,8 +87,12 @@ CMP_MERGER = "И"
 
 QUERIES_TABLE = []
 TABLE_COLUMNS = []
+TABLE_DATA = []
+TABLE_DEFAULT_DATA = []
+EDITED_RECORDS = []
 CUR_QUERY = Converter.encode("[[]]")
 ORDERED_BY = None
+IS_EDIT_MODE = False
 
 ###CONSTANTS
 
@@ -122,6 +126,8 @@ table_column_names = {
 	"Weekdays":		[Column(cname="Дни Недели", width=100), Column(cname="Индексы", width=60)],
 }
 
+
+
 def load_page(page, **kwargs):
 	return render_template(
 		page, 
@@ -141,20 +147,119 @@ def load_page(page, **kwargs):
 		qcnt=QUERIES_COUNT,
 		curquery=CUR_QUERY,
 		orderby=ORDERED_BY,
+		editmode=IS_EDIT_MODE,
+		edited=EDITED_RECORDS,
 		**kwargs
 	)
+
+def add_record(size):
+
+	global SELECTED_TABLE
+
+	if size > 0:
+		query = "INSERT INTO "+SELECTED_TABLE+" VALUES (" + ("-1, "*size)[:-2] + ")"
+		print("APPEND QUERY")
+		print(query)
+		print("EXECUTING APPEND")
+		cursr.execute(query)
+
+	studb.commit()
+
+
+def remove_record(elements):
+
+	global SELECTED_TABLE, TABLE_DATA, TABLE_DEFAULT_DATA, TABLE_COLUMNS
+	
+	for i, v in enumerate(elements):
+		if v == "<i>Неизвестно</i>":
+			elements[i] = "None"
+
+	query = "DELETE FROM "+SELECTED_TABLE+" WHERE "
+
+	indx = -1
+	print()
+	print(elements)
+	print()
+	for i in range(len(TABLE_DATA)):
+		print(TABLE_DATA[i])
+		if elements == TABLE_DATA[i]:
+			indx = i
+			break
+
+	print(indx)
+
+	for i in range(len(TABLE_COLUMNS)):
+		query += TABLE_COLUMNS[i] + " == '" + TABLE_DEFAULT_DATA[indx][i] + "' "
+
+		if i < len(TABLE_COLUMNS)-1:
+			query += "AND "
+
+	print("REMOVE QUERY")
+	print(query)
+	if len(elements) == len(TABLE_COLUMNS) and indx != -1:
+		print("EXECUTING REMOVE")
+		cursr.execute(query)
+
+	studb.commit()
+
+def update_record(upd_from, upd_to):
+	global SELECTED_TABLE, TABLE_DATA, TABLE_COLUMNS, TABLE_DEFAULT_DATA
+
+	for i, v in enumerate(upd_from):
+		if v == "<i>Неизвестно</i>":
+			upd_from[i] = "None"
+
+
+	query = "UPDATE "+SELECTED_TABLE +" SET "
+
+	indx = -1
+	for i in range(len(TABLE_DATA)):
+		if upd_from == TABLE_DATA[i]:
+			indx = i
+			break
+
+	print(indx)
+	print(upd_from)
+
+	for i in range(len(TABLE_COLUMNS)):
+		query += TABLE_COLUMNS[i] + " = '" + upd_to[i] + "'"
+ 
+		if i < len(TABLE_COLUMNS)-1:
+			query += ","
+
+		query += " "
+
+	query += "WHERE "
+	for i in range(len(TABLE_COLUMNS)):
+		query += TABLE_COLUMNS[i] + " == '" + TABLE_DEFAULT_DATA[indx][i] + "' "
+		if i < len(TABLE_COLUMNS)-1:
+			query += "AND "
+
+	print("UPDATE QUERY")
+	print(query)
+	if len(upd_to) == len(TABLE_COLUMNS) and indx != -1:
+		print("EXECUTING UPDATE")
+		cursr.execute(query)
+
+	studb.commit()
+
 
 def gen_items(table=[]):
 
 	items = []
 	for i in table:
-		items.append('<td id="elem">' + '</td><td id="elem">'.join([str(k) for k in i]) + "</td>")
+		tab = []
+		for j in i:
+			tab.append(str(j))
+
+		items.append(tab)
+		#items.append('<td id="elem">' + '</td><td id="elem">'.join([str(k) for k in i]) + "</td>")
 	
 	return items
 
 def generating_table(table_name=tables[0][1]):
 
-	global PG_COUNT, TABLE_COLUMNS, QUERIES_TABLE, TABLE_SIZE
+	global PG_COUNT, TABLE_COLUMNS, QUERIES_TABLE, TABLE_SIZE, DEFAULT_TAB_COL_NAMES, TABLE_DATA, TABLE_DEFAULT_DATA
 
 	tabl = [i[1] for i in tables]
 	if table_name in tabl:
@@ -163,10 +268,12 @@ def generating_table(table_name=tables[0][1]):
 		header = []
 		
 		header_data = cursr.fetchall()
+		print("HEADER DATA:")
+		print(header_data)
 		for i in header_data:
 			header.append(i[1])
 
-		TABLE_COLUMNS = header
+		TABLE_COLUMNS = header[:]
 
 		#### QUERY_GENERATOR ########################
 		
@@ -312,32 +419,65 @@ def generating_table(table_name=tables[0][1]):
 		data = cursr.fetchall()
 		TABLE_SIZE = data[0][0] 
 		PG_COUNT = ceil(TABLE_SIZE/PAGE_SIZE)
-
+  
 		#Item generator
 		items = []	
+		defitems = []
+
 		cursr.execute(basequery) 	#Executing current query
-		data = cursr.fetchall()
+		data =  [[str(j) for j in i] for i in cursr.fetchall()]
+		TABLE_DATA = data
+
+		ordered_by = ""
+		if ORDERED_BY != None:	
+
+			ordertype = "ASC" if ORDERED_BY[0] == "+" else "DESC"
+
+			name = ORDERED_BY[1:] + arrows["asc" if ORDERED_BY[0] == "+" else "desc"]
+			print(header)
+			print(TABLE_COLUMNS)
+			print(name)
+			cname = TABLE_COLUMNS[header.index(name)]
+
+			ordered_by = "ORDER BY "+ cname +" "+ordertype
+		
+		default_exec = "SELECT * FROM " + SELECTED_TABLE + " " + ordered_by + " LIMIT " + str(PAGE_SIZE) + " OFFSET " + str(PAGE_SIZE*(PAGE_NUM-1))
+		print(default_exec)
+		cursr.execute(default_exec)
+		TABLE_DEFAULT_DATA = [[str(j) for j in i] for i in cursr.fetchall()]
 
 		#print(PG_COUNT, TABLE_SIZE, PAGE_SIZE)
 
 		#Cycle replacement (Nones to default values for 'None')
 		for i in data:
 			#items.append(i)
-			items.append(["<i>Неизвестно</i>" if j == None else j for j in i])
+			items.append(["<i>Неизвестно</i>" if j == "None" else j for j in i])
 
-		return header, query_selector, gen_items(items), table_name, column_widthes
+		for i in TABLE_DEFAULT_DATA:
+			defitems.append(["-1" if j == "None" else j for j in i])
+
+		print()
+		print("DEFITEMS IS:")
+		print(defitems)
+		print()
+
+		return header, query_selector, gen_items(items), gen_items(defitems), table_name, column_widthes
 
 
 app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
 def open():
-	global SELECTED_TABLE, PAGE_NUM, PAGE_SIZE, QUERIES_COUNT, QUERIES_TABLE, TABLE_COLUMNS, CUR_QUERY, CMP_MERGER, ORDERED_BY
+	global SELECTED_TABLE, PAGE_NUM, PAGE_SIZE, QUERIES_COUNT, QUERIES_TABLE, TABLE_COLUMNS, CUR_QUERY, CMP_MERGER, ORDERED_BY, IS_EDIT_MODE, EDITED_RECORDS, TABLE_DATA
 
 	#ln = len(QUERIES_TABLE)
 
 	QUERIES_TABLE = []
+	
 	local_query = Converter.decode(request.args.get("query", default=Converter.encode("[[]]"), type=str)) #get query from adress line, converted to ascii executable string
+	
+	IS_EDIT_MODE = request.args.get("edit", default=False, type=bool) or IS_EDIT_MODE
+	
 	print()
 	print("Local Query:")
 	print(local_query)
@@ -389,7 +529,19 @@ def open():
 			CUR_QUERY = Converter.encode("[[]]")
 			QUERIES_COUNT = 1
 			ORDERED_BY = None
+			PAGE_NUM = 1
 
+	elif "ModeChanger" in request.form:
+		IS_EDIT_MODE = not IS_EDIT_MODE
+
+	elif "AddRecord" in request.form:
+		print("TABLE_COLUMNS:")
+		print(TABLE_COLUMNS)
+		add_record(len(TABLE_COLUMNS))
+		print(TABLE_DATA)
+
+
+	print("REQUEST FORM:")
 	for i in request.form:
 		print(i)
 		if "Title" in i:
@@ -405,11 +557,50 @@ def open():
 			else:
 				ORDERED_BY = None
 
+		elif "Edit" in i:
+			
+				val = eval(i[4:])
+				print(val)
+				print()
+				if val not in EDITED_RECORDS:
+					EDITED_RECORDS.append(val)
+				else:
+					val_to = []
+					for k in range(len(TABLE_COLUMNS)):
+						print()
+						print()
+						print("Changing"+str(val)+"Column"+str(k))
+						print("Changing"+str(val)+"Column"+str(k) in request.form)
+						print()
+						print()
+
+						if "Changing"+str(val)+"Column"+str(k) in request.form:
+							val_to.append(request.form.get("Changing"+str(val)+"Column"+str(k)))
+
+					print(val_to)
+					update_record(val, val_to)
+					EDITED_RECORDS.remove(val)
+
+		elif "Delete" in i:
+
+				val = eval(i[6:])
+				print(val)
+				print()
+				if val in EDITED_RECORDS:
+					EDITED_RECORDS.remove(val)
+				else:
+					remove_record(val)
+	
+	print("REQUEST FORM ENDED")
+	print(EDITED_RECORDS)
+
+
+
 	ORDERED_BY = ORDERED_BY or (None if orderby == "None" else orderby)
 	
 	SELECTED_TABLE = table
 
-	PAGE_NUM = request.args.get("page", default=1,  type=int)
+	PAGE_NUM = request.args.get("page", default=PAGE_NUM,  type=int)
 	PAGE_SIZE = request.form.get("PageSize") or request.args.get("count", default=10, type=int)
 	CMP_MERGER = request.form.get("MrgType") or request.args.get("mrg", default="AND", type=str)
 
@@ -419,13 +610,14 @@ def open():
 
 	PAGE_SIZE = int(PAGE_SIZE)
 
-	heading, query_sel, gen, name, widthes = generating_table(table)
+	heading, query_sel, gen, gen_def, name, widthes = generating_table(table)
 	
 	return load_page(
 		"start.html", 
 		heading=heading, 
 		name=name, 
 		table=gen, 
+		tabdef=gen_def,
 		widthes=widthes, 
 		selected=SELECTED_TABLE,
 		qsel=query_sel

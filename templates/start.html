@@ -56,6 +56,8 @@
 					</tr>
 				</table>
 			</font>
+			<button name="go" type="submit">Перейти</button>
+			<p></p>
 
 			<p>Запросы:</p>
 			<table>
@@ -112,8 +114,34 @@
 			</table>
 
 
-			<button name="go" type="submit">Перейти</button>
+			<button name="go" type="submit">Составить запрос</button>
 
+			<p>
+			</p>
+
+			<table>
+				<col width="20%">
+				
+				{% if editmode %}
+					<tr>
+						<td align="right">
+							<button name="ModeChanger" type="submit">Выйти из режима редактирования</button>
+						</td>
+					</tr>
+					<tr>
+						<td align="right">
+							<button name="AddRecord" type="submit">Добавить запись</button>
+						</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td align="right">
+							<button name="ModeChanger" type="submit">Перейти в режим редактирования</button>
+						</td>
+					</tr>
+				{% endif %}
+
+			</table>
 
 			{% if name %}
 				<h1>Запрос {{ name }}</h1>
@@ -124,6 +152,10 @@
 						<col width="{{ width }}">
 					{% endfor %}
 
+					{% if editmode %}
+						<col width="125">
+					{% endif %}
+
 					<tr id="elem">
 					{% for title in heading %}
 						<th id="elem">
@@ -132,12 +164,60 @@
 							</p>
 						</th>
 					{% endfor %}	
+					{% if editmode %}
+						<th id="elem">
+							<p align="center">
+								Редактор
+							</p>
+						</th>
+					{% endif %}
 					</tr>
 
-					{% for items in table %}
-					<tr id="elem">
-						{{ items|safe }}
-					</tr>
+					{% for items in range(table|length) %}
+						<tr id="elem">
+							{% for item in range(table[items]|length) %}
+								{% if editmode and table[items] in edited %}
+									<td id="elem">
+										<p align="center"><b>
+											Текущее значение:
+										</b></p>
+										<p><i>
+											{{ table[items][item]|safe }}
+										</i></p>
+										<p align="center"><b>
+											Введите новое значение:
+										</b></p>
+										<p>
+											<input name="Changing{{ table[items]|safe }}Column{{ item|safe }}" value="{{ tabdef[items][item]|safe }}"/>
+										</p>
+									</td>
+								{% else %}
+									<td id="elem">
+										{{ table[items][item]|safe }}
+									</td>
+								{% endif %}
+
+							{% endfor %}
+
+							{% if editmode %}
+								<td id="elem">
+									<button name="Edit{{table[items]}}" type="submit"><font size="6">
+									{% if table[items] in edited %}
+										✓
+									{% else %}
+										✎
+									{% endif %}
+									</font></button>
+									<button name="Delete{{table[items]}}" type="submit"><font size="6">
+									{% if table[items] in edited %}
+										⟲
+									{% else %}
+										⨯
+									{% endif %}
+									</font></button>
+								</td>
+							{% endif %}
+						</tr>
 					{% endfor %}
 				</table>
 			{% else %}
@@ -149,7 +229,7 @@
 			<table>
 				{% for i in range(1, count+1) %}
 				<tr>
-					<a href="/?table={{ selected|safe }}&count={{ cursize|safe }}&page={{ i|safe }}&query={{curquery|safe}}&mrg={{ mrg_list[mrg_id]|safe }}"> {{ i|safe }} </a>
+					<a href="/?table={{ selected|safe }}&count={{ cursize|safe }}&page={{ i|safe }}&query={{curquery|safe}}&mrg={{ mrg_list[mrg_id]|safe }}&edit={{ editmode|safe }}"> {{ i|safe }} </a>
 				</tr>
 				{% endfor %}
 			</table>
