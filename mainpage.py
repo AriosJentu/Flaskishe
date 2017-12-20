@@ -218,7 +218,13 @@ def update_record(upd_from, upd_to):
 	for i in range(len(TABLE_COLUMNS)):
 		query += TABLE_COLUMNS[i] + " == '" + TABLE_DEFAULT_DATA[indx][i] + "' "
 		if i < len(TABLE_COLUMNS)-1:
-			query += "AND "
+			query += "AND "		
+			basequery += "(SELECT " + j.title + " FROM " + j.table + " WHERE ID == S." + i + ') AS "' + j.cname
+
+			if ORDERED_BY != None and j.cname in ORDERED_BY:
+				basequery += arrows["asc" if ORDERED_BY[0] == "+" else "desc"]
+
+		
 
 	if len(upd_to) == len(TABLE_COLUMNS) and indx != -1:
 		cursr.execute(query)
@@ -408,7 +414,7 @@ def generating_table(table_name=tables[0][1]):
 			cname = TABLE_COLUMNS[header.index(name)]
 
 			ordered_by = "ORDER BY "+ cname +" "+ordertype
-		
+
 		default_exec = "SELECT * FROM " + SELECTED_TABLE + " " + ordered_by + " LIMIT " + str(PAGE_SIZE) + " OFFSET " + str(PAGE_SIZE*(PAGE_NUM-1))
 		cursr.execute(default_exec)
 		TABLE_DEFAULT_DATA = [[str(j) for j in i] for i in cursr.fetchall()]
@@ -430,7 +436,7 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
 def open():
-	global SELECTED_TABLE, PAGE_NUM, PAGE_SIZE, QUERIES_COUNT, QUERIES_TABLE, TABLE_COLUMNS, CUR_QUERY, CMP_MERGER, ORDERED_BY, IS_EDIT_MODE, EDITED_RECORDS, TABLE_DATA
+	global SELECTED_TABLE, PAGE_NUM, PAGE_SIZE, QUERIES_COUNT, QUERIES_TABLE, TABLE_COLUMNS, CUR_QUERY, CMP_MERGER, ORDERED_BY, IS_EDIT_MODE, EDITED_RECORDS, TABLE_DATA, TABLE_SIZE
 
 	#ln = len(QUERIES_TABLE)
 
