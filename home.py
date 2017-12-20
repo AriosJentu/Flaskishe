@@ -4,6 +4,7 @@ from math import ceil
 
 from db import *
 from tablegen import *
+from editbase import *
 
 app = Flask(__name__)
 
@@ -13,7 +14,8 @@ qcount = 1
 @app.route("/", methods=["GET", "POST"])
 def open():
 
-	global table_size, order_by, cur_page, page_size, current_table, compare_type, is_edit, qcount, cmp_queries
+	global table_size, order_by, cur_page, page_size, current_table, \
+		compare_type, is_edit, qcount, cmp_queries
 
 	ptab = current_table
 	current_table = request.form.get("TableChooser")
@@ -67,7 +69,16 @@ def open():
 
 			removableindex = int(i[5:])
 
-		if ""
+		if "Delete" in i:
+			real_vals = get_real_values(current_table, eval(i[6:]))
+			
+			values = {}
+			for i in range(len(tables_info[current_table])):
+				column = tables_info[current_table][i].name
+				values[column] = real_vals[i]
+
+			print(values)
+			remove_record(current_table, values)
 
 		if i == "GenerateTable" and ptab != current_table:
 

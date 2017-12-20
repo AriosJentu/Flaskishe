@@ -33,13 +33,14 @@ def generate_table(table_name=current_table, page=cur_page, psize=page_size,
 		])
 
 		query += " FROM " + table_name + " AS S "
-		if len(compare_queries) > 0 and compare_queries.count(-1) != len(compare_queries):
-			query += "WHERE "
-			query += (" " + cmp_type + " ").join(
+		if len(compare_queries) > 0 and \
+			compare_queries.count(-1) != len(compare_queries):
+				query += "WHERE "
+				query += (" " + cmp_type + " ").join(
 
-				["N_" + k.column + " " + k.cmp_char + " ?"
-				for k in compare_queries if k != -1]
-			)
+					["N_" + k.column + " " + k.cmp_char + " ?"
+					for k in compare_queries if k != -1]
+				)
 
 
 		
@@ -82,6 +83,3 @@ def get_name_from_title(table_name=current_table, title="Name"):
 	for i in tables_info[table_name]:
 		if i.title == title:
 			return i.name
-
-#for i in generate_table("SchedItems", 1, 100, "+WeekdayID", {"SubjID":CmpExpression("!=", '%')}):
-#	print(i)
