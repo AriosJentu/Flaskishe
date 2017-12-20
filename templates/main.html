@@ -1,0 +1,224 @@
+<head>
+	<title>База данных</title>
+	<script type="text/javascript" src="../static/script/jquery.js"></script>
+	<link rel="stylesheet" href="../static/css/style.css">
+</head>
+
+<body>
+	<center>
+
+		<form name="Bases" action="/" method='POST'>
+
+			<font size=3>
+				<table>
+					
+					<tr>
+						Таблица:
+						<select name="TableChooser">
+
+							{% for tab in tables %}
+								<option value="{{ tab }}" 
+									{% if curtable == tab %}
+										SELECTED
+									{% endif %}
+								>{{ tab }}</option>
+							{% endfor %}
+
+						</select>
+
+					</tr>
+
+					<tr>
+						Оператор:
+						<select name="TableQueryComparation">
+							{% for cmp in cmptypes %}
+								<option value="{{ cmp }}" 
+									{% if cmptype == cmp %}
+										SELECTED
+									{% endif %}
+								>{{ cmp }}</option>
+							{% endfor %}
+						</select>
+					</tr>
+
+					<tr>
+						Количество элементов на страницу:
+						<select name="TablePageSizes">
+							{% for size in sizes %}
+								<option value="{{ size }}" 
+									{% if cursize == size %}
+										SELECTED
+									{% endif %}
+								>{{ size }}</option>
+							{% endfor %}
+						</select>
+					</tr>
+
+				</table>
+				
+
+			</font>
+			<button name="GenerateTable" type="submit">Перейти</button>
+			<p></p>
+
+			<p>Запросы:</p>
+			<table>
+				{% for i in range(qcount) %}
+					<tr>
+
+						<td>
+							<select name="QueryColumn{{ i|safe }}">
+								{% for k in range(titles|length) %}
+									<option value="{{ titles[k] }}"
+										{% if i < queries|length and titles_origin[k] == queries[i].column %}
+											SELECTED
+										{% endif %}
+									>
+										{{ titles[k] }}
+									</option>
+								{% endfor %}
+							</select>
+						</td>					
+
+						<td>
+							<select name="QueryCmp{{ i|safe }}">
+								{% for cmp in compares %}
+									<option value="{{ cmp }}"
+										{% if i < queries|length and cmp == queries[i].cmp_char %}
+											SELECTED
+										{% endif %}
+									>
+										{{ cmp }}
+									</option>
+								{% endfor %}
+							</select>
+						</td>
+
+						<td>
+							<input name="QueryIn{{ i|safe }}" value=
+								{% if i < queries|length %}
+									"{{queries[i].value}}"
+								{% else %}
+									""
+								{% endif %}
+
+							/>
+						</td>
+
+						<td>
+							{% if i == 0 %}
+
+								<button name="Plus" type="submit">+</button>
+
+							{% endif %}
+							
+							{% if queries|length > 0 %}
+
+								<button name="Minus{{i}}" type="submit">-</button>
+
+							{% endif %}
+
+						</td>
+					</tr>
+				{% endfor %}
+			</table>
+
+
+
+			{% if curtable %}
+				<h1>Запрос {{ curtable }}</h1>
+				<table id="tab">
+
+					{% for width in widthes%}
+						<col width="{{ width }}">
+					{% endfor %}
+					
+					<tr id="elem">
+
+						{% for title in titles %}
+
+							<th id="elem">
+								<p align="center">
+									<button name="Title{{ title }}" type="submit">{{ title }}</button>
+									{% if title == orderby and ordertype == "+" %}
+										↓
+									{% elif title == orderby and ordertype == "-" %}
+										↑
+									{% endif %}
+								</p>
+							</th>
+
+						{% endfor %}
+
+						{% if isedit %}
+							
+							<th id="elem">
+								<p align="center">
+									Редактор
+								</p>
+							</th>
+
+						{% endif %}
+
+						{% for items in containing %}
+							<tr id="elem">
+								{% for item in items %}
+									
+									<td id="elem">
+										{{ item|safe }}
+									</td>
+
+								{% endfor %}
+
+								{% if isedit %}
+									<td id="elem">
+
+										<button name="Edit{{items}}" type="submit">
+											<font size="5">
+												✎
+											</font>
+										</button>
+
+										<button name="Delete{{items}}" type="submit">
+											<font size="5">
+												⨯
+											</font>
+										</button>
+									</td>
+
+
+								{% endif %}
+						
+							</tr>
+						{% endfor %}
+					</tr>
+
+				</table>
+
+			{% else %}
+				<h1>Данная страница пуста</h1>
+
+			{% endif %}
+			
+			<h5>Страница {{ curpage }}</h5>
+			<h6>{{ low }}-{{ high }} из {{ tabsize }}</h6>
+
+			<table>
+				{% for i in range(1, pagescount+1) %}
+
+					<tr>
+						<button name="Page{{ i|safe }}" type="submit"
+							{% if i == curpage %}
+								DISABLED
+							{% endif %}
+						>{{ i|safe }}</button>
+					</tr>
+
+				{% endfor %}
+			</table>
+
+		</form>
+
+	</center>
+
+</body>

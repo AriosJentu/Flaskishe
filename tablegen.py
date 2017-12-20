@@ -2,7 +2,6 @@ from columns import tables_info
 from db import *
 
 current_table = "Audiences"
-table_size = 0
 cur_page = 1
 page_size = 10
 order_by = None
@@ -12,15 +11,14 @@ comparison_chars = ["==", "!=", ">", "<", ">=", "<=", "LIKE", "NOT LIKE"]
 
 class CmpExpression:
 
-	def __init__(self, cmp_char=comparison_chars[0], value=None):
+	def __init__(self, column=None, cmp_char=comparison_chars[0], value=None):
+		self.column = column
 		self.cmp_char = cmp_char
 		self.value = value
 
 
 def generate_table(table_name=current_table, page=cur_page, psize=page_size, 
-	order=order_by, compare_queries={}):
-
-		global table_size
+	order=order_by, compare_queries=[]):
 
 		query = "SELECT "
 
@@ -39,21 +37,20 @@ def generate_table(table_name=current_table, page=cur_page, psize=page_size,
 			query += "WHERE "
 			query += (" " + compare_type + " ").join(
 
-				["N_" + k + " " + v.cmp_char + " ?"
-				for k, v in compare_queries.items()]
+				["N_" + k.column + " " + k.cmp_char + " ?"
+				for k in compare_queries]
 			)
 
 
 		print(query)
 		
 		values = tuple(
-			[v.value 
-			if v.cmp_char.find("LIKE") < 0 
-			else "%" + v.value + "%" 
-			for _, v in compare_queries.items()
-			]
+			[k.value 
+			if k.cmp_char.find("LIKE") < 0 
+			else "%" + k.value + "%" 
+			for k in compare_queries]
 		)
-		
+		print(values)
 		cursr.execute(query, values)
 		table_size = len(cursr.fetchall())
 
@@ -66,7 +63,7 @@ def generate_table(table_name=current_table, page=cur_page, psize=page_size,
 		cursr.execute(query, values)
 		table = [[j for j in i] for i in cursr.fetchall()]
 
-		return table
+		return table, table_size
 
 def get_table_header(table_name=current_table):
 
@@ -82,7 +79,5 @@ def get_name_from_title(table_name=current_table, title="Name"):
 		if i.title == title:
 			return i.name
 
-
-
-for i in generate_table("SchedItems", 1, 100, "+WeekdayID", {"SubjID":CmpExpression("NOT LIKE", "Анг")}):
-	print(i)
+#for i in generate_table("SchedItems", 1, 100, "+WeekdayID", {"SubjID":CmpExpression("!=", '%')}):
+#	print(i)
