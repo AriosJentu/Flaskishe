@@ -70,7 +70,7 @@
 							<select name="QueryColumn{{ i|safe }}">
 								{% for k in range(titles|length) %}
 									<option value="{{ titles[k] }}"
-										{% if i < queries|length and titles_origin[k] == queries[i].column %}
+										{% if i < queries|length and queries[i] != -1 and titles_origin[k] == queries[i].column %}
 											SELECTED
 										{% endif %}
 									>
@@ -84,7 +84,7 @@
 							<select name="QueryCmp{{ i|safe }}">
 								{% for cmp in compares %}
 									<option value="{{ cmp }}"
-										{% if i < queries|length and cmp == queries[i].cmp_char %}
+										{% if i < queries|length and queries[i] != -1 and cmp == queries[i].cmp_char %}
 											SELECTED
 										{% endif %}
 									>
@@ -95,8 +95,8 @@
 						</td>
 
 						<td>
-							<input name="QueryIn{{ i|safe }}" value=
-								{% if i < queries|length %}
+							<input name="QueryValue{{ i|safe }}" value=
+								{% if i < queries|length and queries[i] != -1 %}
 									"{{queries[i].value}}"
 								{% else %}
 									""
@@ -111,8 +111,8 @@
 								<button name="Plus" type="submit">+</button>
 
 							{% endif %}
-							
-							{% if queries|length > 0 %}
+
+							{% if realqcount > 0 or i > 0 %}
 
 								<button name="Minus{{i}}" type="submit">-</button>
 
@@ -123,6 +123,31 @@
 				{% endfor %}
 			</table>
 
+			<button name="GenerateTable" type="submit">Составить запрос</button>
+			<p></p>
+
+			<table>
+				<col width="20%">
+
+				{% if isedit %}
+					<tr>
+						<td align="right">
+							<button name="ModeChanger" type="submit">Выйти из режима редактирования</button>
+						</td>
+					</tr>
+					<tr>
+						<td align="right">
+							<button name="AddRecord" type="submit">Добавить запись</button>
+						</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td align="right">
+							<button name="ModeChanger" type="submit">Перейти в режим редактирования</button>
+						</td>
+					</tr>
+				{% endif %}
+			</table>
 
 
 			{% if curtable %}
@@ -135,14 +160,14 @@
 					
 					<tr id="elem">
 
-						{% for title in titles %}
+						{% for i in range(titles|length) %}
 
 							<th id="elem">
 								<p align="center">
-									<button name="Title{{ title }}" type="submit">{{ title }}</button>
-									{% if title == orderby and ordertype == "+" %}
+									<button name="Title{{ titles[i] }}" type="submit">{{ titles[i] }}</button>
+									{% if titles_origin[i] == orderby and ordertype == "+" %}
 										↓
-									{% elif title == orderby and ordertype == "-" %}
+									{% elif titles_origin[i] == orderby and ordertype == "-" %}
 										↑
 									{% endif %}
 								</p>
@@ -200,8 +225,8 @@
 
 			{% endif %}
 			
-			<h5>Страница {{ curpage }}</h5>
-			<h6>{{ low }}-{{ high }} из {{ tabsize }}</h6>
+			<p><font size=3>Страница {{ curpage }}</font></p>
+			<p><font size=2>{{ low }}-{{ high }} из {{ tabsize }}</font></p>
 
 			<table>
 				{% for i in range(1, pagescount+1) %}

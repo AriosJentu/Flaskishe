@@ -18,7 +18,7 @@ class CmpExpression:
 
 
 def generate_table(table_name=current_table, page=cur_page, psize=page_size, 
-	order=order_by, compare_queries=[]):
+	order=order_by, compare_queries=[], cmp_type=compare_type):
 
 		query = "SELECT "
 
@@ -33,24 +33,25 @@ def generate_table(table_name=current_table, page=cur_page, psize=page_size,
 		])
 
 		query += " FROM " + table_name + " AS S "
-		if len(compare_queries) > 0:
+		if len(compare_queries) > 0 and compare_queries.count(-1) != len(compare_queries):
 			query += "WHERE "
-			query += (" " + compare_type + " ").join(
+			query += (" " + cmp_type + " ").join(
 
 				["N_" + k.column + " " + k.cmp_char + " ?"
-				for k in compare_queries]
+				for k in compare_queries if k != -1]
 			)
 
 
-		print(query)
 		
 		values = tuple(
 			[k.value 
 			if k.cmp_char.find("LIKE") < 0 
 			else "%" + k.value + "%" 
-			for k in compare_queries]
+			for k in compare_queries if k != -1]
 		)
+		print()
 		print(values)
+		print(query)
 		cursr.execute(query, values)
 		table_size = len(cursr.fetchall())
 
@@ -60,6 +61,9 @@ def generate_table(table_name=current_table, page=cur_page, psize=page_size,
 			query += " ORDER BY " + order[1:]  + " " + order_type
 
 		query += " LIMIT " + str(psize) + " OFFSET " + str(psize*(page-1))
+		
+		print(query)
+
 		cursr.execute(query, values)
 		table = [[j for j in i] for i in cursr.fetchall()]
 

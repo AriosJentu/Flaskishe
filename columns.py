@@ -73,7 +73,7 @@ tables_info = {
 		Column(name="SubjID", title="Предмет", width=150, table_from="Subjects", 
 			column_def_val="ID", column_val_from="Name"),
 
-		Column(name="AudienceID", title="Аудитория", width=80, 
+		Column(name="AudienceID", title="Аудитория", width=90, 
 			table_from="Audiences", column_def_val="ID", 
 			column_val_from="Name"),
 
@@ -86,7 +86,7 @@ tables_info = {
 		Column(name="TypeID", title="Тип", width=50, table_from="LessonTypes", 
 			column_def_val="ID", column_val_from="Name"),
 
-		Column(name="WeekdayID", title="День Недели", width=80, 
+		Column(name="WeekdayID", title="День Недели", width=100, 
 			table_from="Weekdays", column_def_val="ID", column_val_from="Name"),
 	]
 
