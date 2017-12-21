@@ -28,6 +28,22 @@ def get_real_values(table, values):
 
 	return new_vals
 
+def get_list_values_of_column(table, column):
+
+	vals = []
+	for i in tables_info[table]:
+		if i.table_from != None and i.name == column:
+			query = "SELECT " + i.column_val_from + " FROM " + i.table_from
+			print(query)
+			cursr.execute(query)
+			vals = [i[0] for i in cursr.fetchall()]
+			print(vals)
+
+			return vals
+	else:
+		return False
+
+
 
 def next_id(table):
 	cursr.execute("SELECT Max(ID) FROM "+table)
@@ -39,11 +55,12 @@ def add_record(table, values): #values - list without id
 		values = [next_id(table)] + values
 
 	query = "INSERT INTO " + table + " VALUES" 
-	query += "(" + ", ".join(["?" for _ in values]) + ")"
+	query += "("+", ".join(["?" for _ in values]) + ")"
 	print(query)
-	cursr.execute(query, tuple(values))
+	print(get_real_values(table, values))
+	cursr.execute(query, tuple(get_real_values(table, values)))
 
-	studb.commit()
+	#studb.commit()
 
 def remove_record(table, values): 
 	#values = dict; key - column, value - what key equal
@@ -57,26 +74,29 @@ def remove_record(table, values):
 	print(query)
 	cursr.execute(query, tuple([v for v in values.values()]))
 
-	studb.commit()
+	#studb.commit()
 
 def update_record(table, upd_from, upd_to):
 
 	query = "UPDATE " + table + " SET " + ", ".join(
 		[
-			k + " == ?" 
+			j + " == ?" 
 			for j in upd_to.keys()
 		]
 	) + " WHERE " + " AND ".join(
 		[
-			k + " == ?"
+			j + " == ?"
 			for j in upd_from.keys()
 		]
 	)
 	print(query)
+	print(get_real_values(table, [v for v in upd_to.values()]) +
+			get_real_values(table, [v for v in upd_from.values()]))
+
 	cursr.execute(query, tuple(
-			[v for v in upd_to.values()] +
-			[v for v in upd_from.values()]
+			get_real_values(table, [v for v in upd_to.values()]) +
+			get_real_values(table, [v for v in upd_from.values()])
 		)
 	)
 	
-	studb.commit()
+	#studb.commit()

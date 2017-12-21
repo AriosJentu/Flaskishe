@@ -1,0 +1,73 @@
+<head>
+	<title>База данных | Редактор</title>
+	<script type="text/javascript" src="../static/script/jquery.js"></script>
+	<link rel="stylesheet" href="../static/css/style.css">
+</head>
+
+<body>
+	<center>
+		<form name="Edit" action="/" method="POST">
+			<h1>Редактор запроса</h1>
+			<p></p>
+			{% if editrows|length > 0 %}
+				<p>Текущий запрос:</p>
+				<table>
+					<tr>
+						{% for i in editrows %}
+							<td id="elem">
+								{{i}}
+							</td>
+						{% endfor %}
+					</tr>
+				</table>
+			{% endif %}
+			<p>Редактирование</p>
+			<table id="tab">
+				<tr id="elem">
+					
+					{% for i in columns %}
+						<th id="elem">
+							{{ i|safe }}
+						</th>
+					{% endfor %}
+				</tr>
+				<tr>
+					{% for i in range(values|length) %}
+						<td id="elem">
+							{% if values[i] == False %}
+								<input name="EditColumn{{ columns[i] }}" value="{{editrows[i]}}"/>
+							{% else %}
+								<select name="EditColumn{{ columns[i] }}">
+									{% for k in values[i] %}
+										<option value="{{ k }}"
+											{% if k == editrows[i] %}
+												SELECTED
+											{% endif %}
+										>
+											{{ k }}
+										</option>
+									{% endfor %}
+								</select>
+							{% endif %}
+						</td>
+					{% endfor %}
+				</tr>
+			</table>
+			<p></p>
+			<table>
+				
+				<col width="30">
+				<col width="30">
+				<col width="30">
+
+				<td>
+					<button name="UpdateTable" type="submit">Применить</button>
+				</td>
+				<td></td>
+				<td>
+					<button name="GenerateTable" type="submit">Вернуться</button>
+				</td>
+			</table>
+		</form>
+	</center>
+</body>
