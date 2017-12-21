@@ -10,16 +10,19 @@ app = Flask(__name__)
 
 is_edit = False
 is_new = False
+is_editing = False
 
 qcount = 1
 
 edit_rows = []
+cmp_queries = []
 
 @app.route("/", methods=["GET", "POST"])
 def open():
 
 	global table_size, order_by, cur_page, page_size, current_table, \
-		compare_type, is_edit, qcount, cmp_queries, edit_rows, is_new
+		compare_type, is_edit, qcount, cmp_queries, edit_rows, is_new, \
+		is_editing
 
 	ptab = current_table
 	pcmp = compare_type
@@ -50,12 +53,12 @@ def open():
 		if i[:4] == "Page":
 			cur_page = int(i[4:])
 
+
 		if i[:5] == "Title":
 			
 			title = get_name_from_title(current_table, i[5:])
 
 			if order_by != None:
-			
 				if "+"+title == order_by:
 					order_by = "-"+title
 			
@@ -64,25 +67,27 @@ def open():
 			
 				else:
 					order_by = "+"+title
-
 			else:
 				order_by = "+"+title
 
+
 		if i == "ModeChanger":
 			is_edit = not is_edit
+
 
 		if i == "Plus":
 
 			qcount += 1
 
+
 		if "Minus" in i:
 
 			qcount -= 1
-
 			if qcount < 1:
 				qcount = 1
 
 			removableindex = int(i[5:])
+
 
 		if i == "AddRecord":
 			is_new = True
@@ -91,10 +96,10 @@ def open():
 
 		if "EditR" in i:
 
-			#real_vals = get_real_values(current_table, eval(i[5:]))
 			edit_rows = eval(i[5:])
-
+			is_editing = True
 			return redirect(url_for("edit"))
+
 
 		if "Delete" in i:
 
@@ -108,6 +113,7 @@ def open():
 			print(values)
 			remove_record(current_table, values)
 
+
 		if i == "UpdateTable":
 		
 			if len(edit_rows) > 0:
@@ -117,12 +123,9 @@ def open():
 				if "ID" in columns:
 					values.append(edit_rows[columns.index("ID")])
 
-				print("COLUMNS:")
-				print(columns, current_table)
 				for i in columns:
 					if i != "ID":
 						val = request.form.get("EditColumn"+str(i))
-						print(i, val)
 						values.append(val)
 
 				print()
@@ -138,6 +141,7 @@ def open():
 				edit_rows = []
 
 				update_record(current_table, upd_frm, upd_to)
+
 
 			elif is_new:
 
@@ -168,25 +172,32 @@ def open():
 			edit_rows = []
 			qcount = 1
 
-	cmp_queries = []
 
-	for i in range(qcount):
 
-		if i != removableindex:
+	if is_editing:
+		is_editing = False
 
-			column = request.form.get("QueryColumn"+str(i))
-			cmp_char = request.form.get("QueryCmp"+str(i))
-			value = request.form.get("QueryValue"+str(i))
-			
-			print([column, cmp_char, value])
+	else:
+		
+		cmp_queries = []
+		for i in range(qcount):
 
-			if value != None and value != "" and value != " ":
+			if i != removableindex:
 
-				column = get_name_from_title(current_table, column)
-				cmp_queries.append(CmpExpression(column, cmp_char, value))
+				column = request.form.get("QueryColumn"+str(i))
+				cmp_char = request.form.get("QueryCmp"+str(i))
+				value = request.form.get("QueryValue"+str(i))
+				
+				print([column, cmp_char, value])
 
-			else:
-				cmp_queries.append(-1)
+				if value != None and value != "" and value != " ":
+
+					column = get_name_from_title(current_table, column)
+					cmp_queries.append(CmpExpression(column, cmp_char, value))
+
+				else:
+					cmp_queries.append(-1)
+
 
 	print(current_table)
 
