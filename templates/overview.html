@@ -1,0 +1,108 @@
+<head>
+	<title>Обзор Расписания</title>
+	<script type="text/javascript" src="../static/script/jquery.js"></script>
+	<link rel="stylesheet" href="../static/css/style.css">
+</head>
+
+<body>
+	<form name="Overview" action="/overview" method='POST'>
+		<button name="Back" type="submit">Вернуться</button>
+		<center>
+			<h1>Обзор Расписания</h1>
+			<p></p>
+
+			<font size=3>
+				<table>
+					
+					<tr>
+						<td>
+							Собрать таблицу по столбцу:
+						</td>
+						<td>
+							<select name="JoiningTable">
+								{% for col in columns %}
+									<option value="{{col.title}}"
+										{% if col == joinby %}
+											SELECTED
+										{% endif %}
+									>
+										{{col.title}}
+									</option>
+								{% endfor%}							
+							</select>
+						</td>
+						<td>
+							<select name="OrderType">
+								
+								<option value="Не Сортировать" {% if joinby.ascending == None %} SELECTED {% endif %}>Не Сортировать</option>
+								<option value="По Возрастанию" {% if joinby.ascending == True %} SELECTED {% endif %}>По Возрастанию</option>
+								<option value="По Убыванию" {% if joinby.ascending == False %} SELECTED {% endif %}>По Убыванию</option>
+								
+							</select>
+						</td>
+						<td>
+							<button name="Accept" type="submit">Применить</button>
+						</td>
+					</tr>
+
+				</table>
+
+				<p></p>
+				<table id="tab">
+					{% for width in widthes%}
+						<col width="{{ width }}">
+					{% endfor %}
+					<tr id="elem">
+
+						{% for i in range(titles|length) %}
+
+							<th id="elem">
+								<p align="center">
+									<button name="Title{{ titles_origin[i] }}" type="submit">{{ titles[i] }}</button>
+									{% if titles_origin[i] == orderby.name and orderby.ascending == True %}
+										↓
+									{% elif titles_origin[i] == orderby.name and orderby.ascending == False %}
+										↑
+									{% endif %}
+								</p>
+							</th>
+
+						{% endfor %}
+					</tr>
+				</table>
+
+				<p></p>
+				{% for i in range(joining|length) %}
+
+					<h3>{{joining[i]}}</h3>
+					<p></p>
+					<table id="tab">
+
+						{% for width in widthes%}
+							<col width="{{ width }}">
+						{% endfor %}
+
+						<tr id="elem">
+							{% for items in table[i] %}
+								<tr id="elem">
+									{% for item in items %}
+										<td id="elem">
+											{% if item != None %}
+												{{ item|safe }}
+											{% else %}
+												<i>Неизвестно</i>
+											{% endif %}
+										</td>
+									{% endfor %}
+								</tr>
+							{% endfor %}
+						</tr>
+
+					</table>
+					<p></p>
+					<p></p>
+				{% endfor %}
+
+		</center>
+	</form>
+</body>

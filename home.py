@@ -5,6 +5,7 @@ from math import ceil
 from db import *
 from tablegen import *
 from editbase import *
+from olad import *
 
 app = Flask(__name__)
 
@@ -24,9 +25,10 @@ def open():
 		compare_type, is_edit, qcount, cmp_queries, edit_rows, is_new, \
 		is_editing
 
-	ptab = current_table
-	pcmp = compare_type
-	ppsz = page_size
+	saved_table = current_table
+	saved_cmp = compare_type
+	saved_psize = page_size
+	
 	current_table = request.form.get("TableChooser")
 	compare_type = request.form.get("TableQueryComparation")
 	page_size = request.form.get("TablePageSizes")
@@ -37,13 +39,13 @@ def open():
 	print()
 
 	if current_table == None:
-		current_table = ptab
+		current_table = saved_table
 
 	if compare_type == None:
-		compare_type = pcmp
+		compare_type = saved_cmp
 
 	if page_size == None:
-		page_size = ppsz
+		page_size = saved_psize
 
 	page_size = int(page_size)
 
@@ -91,6 +93,7 @@ def open():
 
 		if i == "AddRecord":
 			is_new = True
+			edit_rows = []
 			return redirect(url_for("edit"))
 
 
@@ -162,8 +165,8 @@ def open():
 				add_record(current_table, values)				
 
 
-		if i == "GenerateTable" and ptab != current_table:
-			print(ptab, current_table)
+		if i == "GenerateTable" and saved_table != current_table:
+			print(saved_table, current_table)
 
 			order_by = None
 			is_edit = False
@@ -172,13 +175,15 @@ def open():
 			edit_rows = []
 			qcount = 1
 
+		if i == "SchedOverview":
+			return redirect(url_for("overview"))
 
 
 	if is_editing:
 		is_editing = False
 
 	else:
-		
+
 		cmp_queries = []
 		for i in range(qcount):
 
@@ -268,6 +273,79 @@ def edit():
 		isnew=is_new
 	)
 
+@app.route("/overview", methods=["GET", "POST"])
+def overview():
+
+	global join_column, ordering_column, tables_info
+
+
+	for i in request.form:
+		if i == "Back":
+			return redirect("/")
+
+		elif i == "Accept":
+			sel_join = request.form.get("JoiningTable")
+			sel_sort_type = request.form.get("OrderType") 
+			
+			stype = None
+			scolumn = tables_info["SchedItems"][-1]
+
+			print(sel_sort_type)
+			if sel_sort_type == "По Возрастанию":
+				stype = True
+			elif sel_sort_type == "По Убыванию":
+				stype = False
+
+			for k in tables_info["SchedItems"]:
+				if k.title == sel_join:
+					scolumn = k
+
+			join_column = scolumn
+			join_column.ascending = stype
+			ordering_column.ascending = None
+
+		elif "Title" in i:
+			name = i[5:]
+			
+			if ordering_column.name == name:
+				
+				if ordering_column.ascending == None:
+					ordering_column.ascending = True
+				
+				elif ordering_column.ascending == True:
+					ordering_column.ascending = False
+
+				elif ordering_column.ascending == False:
+					ordering_column.ascending = None
+
+			else:
+				for k in tables_info["SchedItems"]:
+					if k.name == name:
+						ordering_column = k
+						ordering_column.ascending = True
+
+
+
+	table_dict = generate_schedule(join_column, ordering_column)
+	for i, v in table_dict.items():
+		print(str(i)+":")
+		for k in v:
+			print(" ".join(["`"+str(j)+"`" for j in k]))
+		print()
+
+	print(join_column.ascending)
+	print(table_dict.keys())
+	return render_template(
+		"overview.html",
+		joining=[i for i in table_dict.keys()],
+		table=[i for i in table_dict.values()],
+		widthes=[i.width+40 for i in tables_info["SchedItems"] if i != join_column],
+		titles=[i.title for i in tables_info["SchedItems"] if i != join_column],
+		titles_origin=[i.name for i in tables_info["SchedItems"] if i != join_column],
+		joinby=join_column,
+		orderby=ordering_column,
+		columns=[i for i in tables_info["SchedItems"]]
+	)
 
 if __name__ == "__main__":
 	app.run()

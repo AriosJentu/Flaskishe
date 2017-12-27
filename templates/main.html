@@ -129,6 +129,11 @@
 			<table>
 				<col width="20%">
 
+				<tr>
+					<td align="right">
+						<button name="SchedOverview" type="submit">Перейти к обзору расписания</button>
+					</td>
+				</tr>
 				{% if isedit %}
 					<tr>
 						<td align="right">
@@ -164,7 +169,7 @@
 
 							<th id="elem">
 								<p align="center">
-									<button name="Title{{ titles[i] }}" type="submit">{{ titles[i] }}</button>
+									<button name="Title{{ titles_origin[i] }}" type="submit">{{ titles[i] }}</button>
 									{% if titles_origin[i] == orderby and ordertype == "+" %}
 										↓
 									{% elif titles_origin[i] == orderby and ordertype == "-" %}
@@ -190,7 +195,11 @@
 								{% for item in items %}
 									
 									<td id="elem">
-										{{ item|safe }}
+										{% if item != None %}
+											{{ item|safe }}
+										{% else %}
+											<i>Неизвестно</i>
+										{% endif %}
 									</td>
 
 								{% endfor %}
