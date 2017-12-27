@@ -17,6 +17,7 @@ qcount = 1
 
 edit_rows = []
 cmp_queries = []
+hiding_tables = []
 
 @app.route("/", methods=["GET", "POST"])
 def open():
@@ -276,7 +277,7 @@ def edit():
 @app.route("/overview", methods=["GET", "POST"])
 def overview():
 
-	global join_column, ordering_column, tables_info
+	global join_column, ordering_column, tables_info, hiding_tables
 
 
 	for i in request.form:
@@ -299,10 +300,12 @@ def overview():
 			for k in tables_info["SchedItems"]:
 				if k.title == sel_join:
 					scolumn = k
+					break
 
 			join_column = scolumn
 			join_column.ascending = stype
 			ordering_column.ascending = None
+			hiding_tables = []
 
 		elif "Title" in i:
 			name = i[5:]
@@ -323,6 +326,14 @@ def overview():
 					if k.name == name:
 						ordering_column = k
 						ordering_column.ascending = True
+						break
+
+		elif "Hide" in i:
+			col_num = int(i[4:])
+			if col_num in hiding_tables:
+				hiding_tables.remove(col_num)
+			else:
+				hiding_tables.append(col_num)
 
 
 
@@ -344,7 +355,8 @@ def overview():
 		titles_origin=[i.name for i in tables_info["SchedItems"] if i != join_column],
 		joinby=join_column,
 		orderby=ordering_column,
-		columns=[i for i in tables_info["SchedItems"]]
+		columns=[i for i in tables_info["SchedItems"]],
+		hides=hiding_tables
 	)
 
 if __name__ == "__main__":

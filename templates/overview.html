@@ -74,34 +74,47 @@
 				<p></p>
 				{% for i in range(joining|length) %}
 
+					<hr>
+					<p></p>
 					<h3>{{joining[i]}}</h3>
+					<p align="right">
+						<button name="Hide{{i}}" type="submit">
+							{% if i in hides %}
+								Развернуть
+							{% else %}
+								Свернуть
+							{% endif %}
+						</button>
+					</p>
 					<p></p>
-					<table id="tab">
+					{% if i not in hides %}
+						<table id="tab">
 
-						{% for width in widthes%}
-							<col width="{{ width }}">
-						{% endfor %}
-
-						<tr id="elem">
-							{% for items in table[i] %}
-								<tr id="elem">
-									{% for item in items %}
-										<td id="elem">
-											{% if item != None %}
-												{{ item|safe }}
-											{% else %}
-												<i>Неизвестно</i>
-											{% endif %}
-										</td>
-									{% endfor %}
-								</tr>
+							{% for width in widthes%}
+								<col width="{{ width }}">
 							{% endfor %}
-						</tr>
 
-					</table>
-					<p></p>
-					<p></p>
+							<tr id="elem">
+								{% for items in table[i] %}
+									<tr id="elem">
+										{% for item in items %}
+											<td id="elem">
+												{% if item != None %}
+													{{ item|safe }}
+												{% else %}
+													<i>Неизвестно</i>
+												{% endif %}
+											</td>
+										{% endfor %}
+									</tr>
+								{% endfor %}
+							</tr>
+
+						</table>
+					{% endif %}
 				{% endfor %}
+				
+				<hr>
 
 		</center>
 	</form>
