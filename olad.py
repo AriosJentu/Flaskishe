@@ -4,7 +4,7 @@ from db import *
 join_row = tables_info["SchedItems"][-1] #weekday by default for vertical
 join_row.ascending = True
 
-join_column = tables_info["SchedItems"][4] #group by default for horizontal
+join_column = tables_info["SchedItems"][5] #group by default for horizontal
 join_column.ascending = True
 
 ordering_column = tables_info["SchedItems"][1] #lessons column by default
@@ -25,7 +25,10 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 	cursr.execute(column_query)
 	column_fetch = cursr.fetchall()
 	columns = [i[0] for i in column_fetch]
-	#print(columns)
+	if joining_column == tables_info["SchedItems"][5]:
+		columns.append(None)
+	
+	print(columns)
 
 	#ORDERING ROWS
 	if joining_row.table_from:
@@ -39,7 +42,10 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 	cursr.execute(row_query)
 	row_fetch = cursr.fetchall()
 	rows = [i[0] for i in row_fetch]
-	#print(rows)
+	if joining_row == tables_info["SchedItems"][5]:
+		rows.append(None)
+
+	print(rows)
 	#---------------------------------------------------------------------------------------------------------
 
 	query = "SELECT "
@@ -67,6 +73,7 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 	idx_row = tables_info["SchedItems"].index(joining_row)
 
 	preresult = {column:{row:[] for row in rows} for column in columns}
+
 	for values in fetch:
 		clmn = values[idx_column]
 		rw = values[idx_row]
@@ -83,10 +90,6 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 		result[row] = []
 		for col in columns:
 			result[row].append(preresult[col][row])
-
-	#print(result)
-
-	#print(result[0][0]) #Понедельник (1й [0]) у первой группы (2й [0]) (в случае "3" - в 549й аудитории) - 
 
 	return result, rows, columns
 
