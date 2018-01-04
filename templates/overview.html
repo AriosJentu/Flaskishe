@@ -19,10 +19,10 @@
 							Собрать таблицу по столбцу:
 						</td>
 						<td>
-							<select name="JoiningTable">
+							<select name="JoiningTableColumn">
 								{% for col in columns %}
 									<option value="{{col.title}}"
-										{% if col == joinby %}
+										{% if col == join_col %}
 											SELECTED
 										{% endif %}
 									>
@@ -32,31 +32,56 @@
 							</select>
 						</td>
 						<td>
-							<select name="OrderType">
+							<select name="OrderTypeColumn">
 								
-								<option value="Не Сортировать" {% if joinby.ascending == None %} SELECTED {% endif %}>Не Сортировать</option>
-								<option value="По Возрастанию" {% if joinby.ascending == True %} SELECTED {% endif %}>По Возрастанию</option>
-								<option value="По Убыванию" {% if joinby.ascending == False %} SELECTED {% endif %}>По Убыванию</option>
+								<option value="Не Сортировать" {% if join_col.ascending == None %} SELECTED {% endif %}>Не Сортировать</option>
+								<option value="По Возрастанию" {% if join_col.ascending == True %} SELECTED {% endif %}>По Возрастанию</option>
+								<option value="По Убыванию" {% if join_col.ascending == False %} SELECTED {% endif %}>По Убыванию</option>
 								
 							</select>
 						</td>
+					</tr>
+					<tr>
 						<td>
-							<button name="Accept" type="submit">Применить</button>
+							Собрать таблицу по строке:
+						</td>
+						<td>
+							<select name="JoiningTableRow">
+								{% for col in columns %}
+									<option value="{{col.title}}"
+										{% if col == join_row %}
+											SELECTED
+										{% endif %}
+									>
+										{{col.title}}
+									</option>
+								{% endfor%}							
+							</select>
+						</td>
+						<td>
+							<select name="OrderTypeRow">
+								
+								<option value="Не Сортировать" {% if join_row.ascending == None %} SELECTED {% endif %}>Не Сортировать</option>
+								<option value="По Возрастанию" {% if join_row.ascending == True %} SELECTED {% endif %}>По Возрастанию</option>
+								<option value="По Убыванию" {% if join_row.ascending == False %} SELECTED {% endif %}>По Убыванию</option>
+								
+							</select>
 						</td>
 					</tr>
 
 				</table>
+				<button name="Accept" type="submit">Применить</button>
 
 				<p></p>
-				<table id="tab">
+				<table id="tab" class="tab">
 					{% for width in widthes%}
 						<col width="{{ width }}">
 					{% endfor %}
-					<tr id="elem">
+					<tr class="elem">
 
 						{% for i in range(titles|length) %}
 
-							<th id="elem">
+							<th class="elem">
 								<p align="center">
 									<button name="Title{{ titles_origin[i] }}" type="submit">{{ titles[i] }}</button>
 									{% if titles_origin[i] == orderby.name and orderby.ascending == True %}
@@ -72,50 +97,48 @@
 				</table>
 
 				<p></p>
-				{% for i in range(joining|length) %}
+				<table id="tab" class="elem">
+					<tr>
+						<th>
+							<p></p>
+						</th>
+						{% for i in jcols %}
+							<th>
+								{{i}}
+							</th>
+						{% endfor %}
+					</tr>
 
-					<hr>
-					<p></p>
-					<h3>{{joining[i]}}</h3>
-					<p align="right">
-						<button name="Hide{{i}}" type="submit">
-							{% if i in hides %}
-								Развернуть
-							{% else %}
-								Свернуть
-							{% endif %}
-						</button>
-					</p>
-					<p></p>
-					{% if i not in hides %}
-						<table id="tab">
+					{% for row in jrows %}
 
-							{% for width in widthes%}
-								<col width="{{ width }}">
+						<tr>
+							<th>{{row}}</th>
+							{% for frow in range(table[row]|length) %}
+								<td>
+									{% for elements in table[row][frow] %}
+										<center><table id="tab">
+											<tr>
+												<th>
+													<p>{{row}}</p>
+													<p>{{jcols[frow]}}</p>
+												</th>
+											</tr>
+											{% for field in elements %}
+												<tr>
+													<td>{{field}}</td>
+												</tr>
+											{% endfor %}
+										</table></center>
+										<p></p>
+									{% endfor %}
+								</td>
 							{% endfor %}
+						</tr>
 
-							<tr id="elem">
-								{% for items in table[i] %}
-									<tr id="elem">
-										{% for item in items %}
-											<td id="elem">
-												{% if item != None %}
-													{{ item|safe }}
-												{% else %}
-													<i>Неизвестно</i>
-												{% endif %}
-											</td>
-										{% endfor %}
-									</tr>
-								{% endfor %}
-							</tr>
+					{% endfor %}
 
-						</table>
-					{% endif %}
-				{% endfor %}
-				
-				<hr>
-
+				</table>
+			</font>
 		</center>
 	</form>
 </body>

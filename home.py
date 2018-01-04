@@ -34,10 +34,10 @@ def open():
 	compare_type = request.form.get("TableQueryComparation")
 	page_size = request.form.get("TablePageSizes")
 	
-	print(current_table)
-	print(compare_type)
-	print(page_size)
-	print()
+	#print(current_table)
+	#print(compare_type)
+	#print(page_size)
+	#print()
 
 	if current_table == None:
 		current_table = saved_table
@@ -114,7 +114,7 @@ def open():
 				column = tables_info[current_table][i].name
 				values[column] = real_vals[i]
 
-			print(values)
+			#print(values)
 			remove_record(current_table, values)
 
 
@@ -132,13 +132,13 @@ def open():
 						val = request.form.get("EditColumn"+str(i))
 						values.append(val)
 
-				print()
-				print("FROM:")
-				print(edit_rows)
-				print("EDITING:")
-				print(values)
-				print(get_real_values(current_table, values))
-				print()
+				#print()
+				#print("FROM:")
+				#print(edit_rows)
+				#print("EDITING:")
+				#print(values)
+				#print(get_real_values(current_table, values))
+				#print()
 				
 				upd_frm = {columns[i]:edit_rows[i] for i in range(len(columns))}
 				upd_to = {columns[i]:values[i] for i in range(len(columns))}
@@ -157,17 +157,17 @@ def open():
 				for i in columns:
 					values.append(request.form.get("EditColumn"+str(i)))
 
-				print()
-				print("ADDING:")
-				print(values)
-				print(get_real_values(current_table, values))
-				print()
+				#print()
+				#print("ADDING:")
+				#print(values)
+				#print(get_real_values(current_table, values))
+				#print()
 				
 				add_record(current_table, values)				
 
 
 		if i == "GenerateTable" and saved_table != current_table:
-			print(saved_table, current_table)
+			#print(saved_table, current_table)
 
 			order_by = None
 			is_edit = False
@@ -194,7 +194,7 @@ def open():
 				cmp_char = request.form.get("QueryCmp"+str(i))
 				value = request.form.get("QueryValue"+str(i))
 				
-				print([column, cmp_char, value])
+				#print([column, cmp_char, value])
 
 				if value != None and value != "" and value != " ":
 
@@ -205,7 +205,7 @@ def open():
 					cmp_queries.append(-1)
 
 
-	print(current_table)
+	#print(current_table)
 
 	order = order_by
 	containing, table_size = generate_table(
@@ -217,7 +217,7 @@ def open():
 		cmp_type=compare_type
 	)
 
-	print(table_size)
+	#print(table_size)
 	return render_template(
 		"main.html",
 		curtable=current_table,
@@ -263,8 +263,8 @@ def edit():
 			columns.remove("ID")
 			break
 
-	print(values)
-	print(edits)
+	#print(values)
+	#print(edits)
 
 	return render_template(
 		"edit.html",
@@ -277,37 +277,18 @@ def edit():
 @app.route("/overview", methods=["GET", "POST"])
 def overview():
 
-	global join_column, ordering_column, tables_info, hiding_tables
-
+	global join_column, join_row, ordering_column, tables_info, hiding_tables
 
 	for i in request.form:
 		if i == "Back":
 			return redirect("/")
 
-		elif i == "Accept":
-			sel_join = request.form.get("JoiningTable")
-			sel_sort_type = request.form.get("OrderType") 
-			
-			stype = None
-			scolumn = tables_info["SchedItems"][-1]
+		if i == "Accept":
 
-			print(sel_sort_type)
-			if sel_sort_type == "По Возрастанию":
-				stype = True
-			elif sel_sort_type == "По Убыванию":
-				stype = False
-
-			for k in tables_info["SchedItems"]:
-				if k.title == sel_join:
-					scolumn = k
-					break
-
-			join_column = scolumn
-			join_column.ascending = stype
 			ordering_column.ascending = None
 			hiding_tables = []
 
-		elif "Title" in i:
+		if "Title" in i:
 			name = i[5:]
 			
 			if ordering_column.name == name:
@@ -328,7 +309,7 @@ def overview():
 						ordering_column.ascending = True
 						break
 
-		elif "Hide" in i:
+		if "Hide" in i:
 			col_num = int(i[4:])
 			if col_num in hiding_tables:
 				hiding_tables.remove(col_num)
@@ -336,24 +317,19 @@ def overview():
 				hiding_tables.append(col_num)
 
 
+	table, rows, columns = generate_schedule(join_column, join_row, ordering_column)
 
-	table_dict = generate_schedule(join_column, ordering_column)
-	for i, v in table_dict.items():
-		print(str(i)+":")
-		for k in v:
-			print(" ".join(["`"+str(j)+"`" for j in k]))
-		print()
 
-	print(join_column.ascending)
-	print(table_dict.keys())
 	return render_template(
 		"overview.html",
-		joining=[i for i in table_dict.keys()],
-		table=[i for i in table_dict.values()],
-		widthes=[i.width+40 for i in tables_info["SchedItems"] if i != join_column],
-		titles=[i.title for i in tables_info["SchedItems"] if i != join_column],
-		titles_origin=[i.name for i in tables_info["SchedItems"] if i != join_column],
-		joinby=join_column,
+		jcols=columns,
+		jrows=rows,
+		table=table,
+		widthes=[i.width+40 for i in tables_info["SchedItems"] if i != join_column and i != join_row],
+		titles=[i.title for i in tables_info["SchedItems"] if i != join_column and i != join_row],
+		titles_origin=[i.name for i in tables_info["SchedItems"] if i != join_column and i != join_row],
+		join_col=join_column,
+		join_row=join_row,
 		orderby=ordering_column,
 		columns=[i for i in tables_info["SchedItems"]],
 		hides=hiding_tables

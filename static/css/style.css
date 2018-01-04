@@ -10,7 +10,7 @@ body {
 	border-collapse: collapse;
 }
 
-#elem {
+.elem td, .elem th, .elem tr {
 	border: 1px solid;
 	text-align: left;
 	padding: 15px;

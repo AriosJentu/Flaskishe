@@ -157,17 +157,17 @@
 
 			{% if curtable %}
 				<h1>Запрос {{ curtable }}</h1>
-				<table id="tab">
+				<table id="tab" class="elem">
 
 					{% for width in widthes%}
 						<col width="{{ width }}">
 					{% endfor %}
 					
-					<tr id="elem">
+					<tr>
 
 						{% for i in range(titles|length) %}
 
-							<th id="elem">
+							<th>
 								<p align="center">
 									<button name="Title{{ titles_origin[i] }}" type="submit">{{ titles[i] }}</button>
 									{% if titles_origin[i] == orderby and ordertype == "+" %}
@@ -182,7 +182,7 @@
 
 						{% if isedit %}
 							
-							<th id="elem">
+							<th>
 								<p align="center">
 									Редактор
 								</p>
@@ -191,10 +191,10 @@
 						{% endif %}
 
 						{% for items in containing %}
-							<tr id="elem">
+							<tr>
 								{% for item in items %}
 									
-									<td id="elem">
+									<td>
 										{% if item != None %}
 											{{ item|safe }}
 										{% else %}
@@ -205,7 +205,7 @@
 								{% endfor %}
 
 								{% if isedit %}
-									<td id="elem">
+									<td>
 
 										<button name="EditR{{items}}" type="submit">
 											<font size="5">
