@@ -279,6 +279,35 @@ def overview():
 
 	global join_column, join_row, ordering_column, tables_info, hiding_tables
 
+	columns_asc = None
+	rows_asc = None
+
+	col_asc_type = request.form.get("OrderTypeColumns")
+	row_asc_type = request.form.get("OrderTypeRows")
+	colname = request.form.get("JoiningTableColumns")
+	rowname = request.form.get("JoiningTableRows")
+	joining_columns = None #join_column
+	joining_rows = None #join_row
+
+	for i in tables_info["SchedItems"]:
+		if i.title == colname:
+			print(colname, "COLUMN")
+			joining_columns = i
+		if i.title == rowname:
+			print(rowname, "ROW")
+			joining_rows = i
+
+
+	if col_asc_type == "По Возрастанию":
+		columns_asc = True
+	elif col_asc_type == "По Убыванию":
+		columns_asc = False
+
+	if row_asc_type == "По Возрастанию":
+		rows_asc = True
+	elif row_asc_type == "По Убыванию":
+		rows_asc = False
+
 	for i in request.form:
 		if i == "Back":
 			return redirect("/")
@@ -286,6 +315,10 @@ def overview():
 		if i == "Accept":
 
 			ordering_column.ascending = None
+		
+			join_column = joining_columns
+			join_row = joining_rows
+
 			hiding_tables = []
 
 		if "Title" in i:
@@ -317,8 +350,9 @@ def overview():
 				hiding_tables.append(col_num)
 
 
+	join_column.ascending = columns_asc
+	join_row.ascending = rows_asc
 	table, rows, columns = generate_schedule(join_column, join_row, ordering_column)
-
 
 	return render_template(
 		"overview.html",

@@ -25,7 +25,7 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 	cursr.execute(column_query)
 	column_fetch = cursr.fetchall()
 	columns = [i[0] for i in column_fetch]
-	print(columns)
+	#print(columns)
 
 	#ORDERING ROWS
 	if joining_row.table_from:
@@ -39,7 +39,7 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 	cursr.execute(row_query)
 	row_fetch = cursr.fetchall()
 	rows = [i[0] for i in row_fetch]
-	print(rows)
+	#print(rows)
 	#---------------------------------------------------------------------------------------------------------
 
 	query = "SELECT "
@@ -84,7 +84,7 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 		for col in columns:
 			result[row].append(preresult[col][row])
 
-	print(result)
+	#print(result)
 
 	#print(result[0][0]) #Понедельник (1й [0]) у первой группы (2й [0]) (в случае "3" - в 549й аудитории) - 
 

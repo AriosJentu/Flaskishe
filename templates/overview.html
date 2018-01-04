@@ -19,7 +19,7 @@
 							Собрать таблицу по столбцу:
 						</td>
 						<td>
-							<select name="JoiningTableColumn">
+							<select name="JoiningTableColumns">
 								{% for col in columns %}
 									<option value="{{col.title}}"
 										{% if col == join_col %}
@@ -32,7 +32,7 @@
 							</select>
 						</td>
 						<td>
-							<select name="OrderTypeColumn">
+							<select name="OrderTypeColumns">
 								
 								<option value="Не Сортировать" {% if join_col.ascending == None %} SELECTED {% endif %}>Не Сортировать</option>
 								<option value="По Возрастанию" {% if join_col.ascending == True %} SELECTED {% endif %}>По Возрастанию</option>
@@ -46,7 +46,7 @@
 							Собрать таблицу по строке:
 						</td>
 						<td>
-							<select name="JoiningTableRow">
+							<select name="JoiningTableRows">
 								{% for col in columns %}
 									<option value="{{col.title}}"
 										{% if col == join_row %}
@@ -59,7 +59,7 @@
 							</select>
 						</td>
 						<td>
-							<select name="OrderTypeRow">
+							<select name="OrderTypeRows">
 								
 								<option value="Не Сортировать" {% if join_row.ascending == None %} SELECTED {% endif %}>Не Сортировать</option>
 								<option value="По Возрастанию" {% if join_row.ascending == True %} SELECTED {% endif %}>По Возрастанию</option>
@@ -73,6 +73,7 @@
 				<button name="Accept" type="submit">Применить</button>
 
 				<p></p>
+				<h3>Сортировка</h3>
 				<table id="tab" class="tab">
 					{% for width in widthes%}
 						<col width="{{ width }}">
@@ -104,7 +105,9 @@
 						</th>
 						{% for i in jcols %}
 							<th>
-								{{i}}
+								<center>
+									{{i}}
+								</center>
 							</th>
 						{% endfor %}
 					</tr>
@@ -112,15 +115,17 @@
 					{% for row in jrows %}
 
 						<tr>
-							<th>{{row}}</th>
+							<th><center>{{row}}</center></th>
 							{% for frow in range(table[row]|length) %}
 								<td>
 									{% for elements in table[row][frow] %}
 										<center><table id="tab">
 											<tr>
 												<th>
-													<p>{{row}}</p>
-													<p>{{jcols[frow]}}</p>
+													<center>
+														<p>{{row}}</p>
+														<p>{{jcols[frow]}}</p>
+													</center>
 												</th>
 											</tr>
 											{% for field in elements %}
