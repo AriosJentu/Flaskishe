@@ -4,7 +4,7 @@ from db import *
 join_row = tables_info["SchedItems"][-1] #weekday by default for vertical
 join_row.ascending = True
 
-join_column = tables_info["SchedItems"][5] #group by default for horizontal
+join_column = tables_info["SchedItems"][4] #group by default for horizontal
 join_column.ascending = True
 
 ordering_column = tables_info["SchedItems"][1] #lessons column by default

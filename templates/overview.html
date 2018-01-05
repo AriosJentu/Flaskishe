@@ -121,45 +121,58 @@
 						<tr>
 							<th>
 								<center>
-									{% if row == None %}
-										<i>Неизвестно</i>
-									{% else %}
-										{{row}}
-									{% endif %}
+									<p>
+										{% if row == None %}
+											<i>Неизвестно</i>
+										{% else %}
+											{{row}}
+										{% endif %}
+									</p>
+									<p>
+										<button name="Hide{{row}}">
+											{% if row in hides %}
+												Раскрыть
+											{% else %}
+												Скрыть
+											{% endif %}
+										</button>
+									</p>
 								</center>
 							</th>
 							{% for frow in range(table[row]|length) %}
 								<td>
-									{% for elements in table[row][frow] %}
-										<center><table id="tab">
-											<tr>
-												<th>
-													<center>
-														<p>
-															{% if row == None %}
-																<i>Неизвестно</i>
-															{% else %}
-																{{row}}
-															{% endif %}
-														</p>
-														<p>
-															{% if jcols[frow] == None %}
-																<i>Неизвестно</i>
-															{% else %}
-																{{jcols[frow]}}
-															{% endif %}
-														</p>
-													</center>
-												</th>
-											</tr>
-											{% for field in elements %}
+									{% if row not in hides %}
+										{% for elements in table[row][frow] %}
+											<center><table id="tab">
 												<tr>
-													<td>{{field}}</td>
+													<th>
+														<center>
+															<p>
+																{% if row == None %}
+																	<i>Неизвестно</i>
+																{% else %}
+																	{{row}}
+																{% endif %}
+															</p>
+															<p>
+																{% if jcols[frow] == None %}
+																	<i>Неизвестно</i>
+																{% else %}
+																	{{jcols[frow]}}
+																{% endif %}
+															</p>
+														</center>
+													</th>
 												</tr>
-											{% endfor %}
-										</table></center>
-										<p></p>
-									{% endfor %}
+												{% for field in elements %}
+													<tr>
+														<td>{{field}}</td>
+													</tr>
+												{% endfor %}
+											</table></center>
+											<p></p>
+										{% endfor %}
+									{% endif %}
 								</td>
 							{% endfor %}
 						</tr>

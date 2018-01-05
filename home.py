@@ -343,11 +343,11 @@ def overview():
 						break
 
 		if "Hide" in i:
-			col_num = int(i[4:])
-			if col_num in hiding_tables:
-				hiding_tables.remove(col_num)
+			col_name = i[4:]
+			if col_name in hiding_tables:
+				hiding_tables.remove(col_name)
 			else:
-				hiding_tables.append(col_num)
+				hiding_tables.append(col_name)
 
 
 	join_column.ascending = columns_asc
