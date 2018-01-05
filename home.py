@@ -18,6 +18,7 @@ qcount = 1
 edit_rows = []
 cmp_queries = []
 hiding_tables = []
+hiding_fields = []
 
 @app.route("/", methods=["GET", "POST"])
 def open():
@@ -277,7 +278,7 @@ def edit():
 @app.route("/overview", methods=["GET", "POST"])
 def overview():
 
-	global join_column, join_row, ordering_column, tables_info, hiding_tables
+	global join_column, join_row, ordering_column, tables_info, hiding_tables, hiding_fields
 
 	columns_asc = None
 	rows_asc = None
@@ -320,6 +321,7 @@ def overview():
 			join_row = joining_rows
 
 			hiding_tables = []
+			hiding_fields = []
 
 		if "Title" in i:
 			name = i[5:]
@@ -342,12 +344,19 @@ def overview():
 						ordering_column.ascending = True
 						break
 
-		if "Hide" in i:
-			col_name = i[4:]
-			if col_name in hiding_tables:
-				hiding_tables.remove(col_name)
+		if "HideRow" in i:
+			row_name = i[7:]
+			if row_name in hiding_tables:
+				hiding_tables.remove(row_name)
 			else:
-				hiding_tables.append(col_name)
+				hiding_tables.append(row_name)
+
+		if "HideField" in i:
+			field = eval(i[9:])
+			if field in hiding_fields:
+				hiding_fields.remove(field)
+			else:
+				hiding_fields.append(field)
 
 
 	join_column.ascending = columns_asc
@@ -366,7 +375,8 @@ def overview():
 		join_row=join_row,
 		orderby=ordering_column,
 		columns=[i for i in tables_info["SchedItems"]],
-		hides=hiding_tables
+		hides=hiding_tables,
+		hides_fields=hiding_fields
 	)
 
 if __name__ == "__main__":

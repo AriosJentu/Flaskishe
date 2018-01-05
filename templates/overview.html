@@ -129,7 +129,7 @@
 										{% endif %}
 									</p>
 									<p>
-										<button name="Hide{{row}}">
+										<button name="HideRow{{row}}">
 											{% if row in hides %}
 												Раскрыть
 											{% else %}
@@ -161,14 +161,25 @@
 																	{{jcols[frow]}}
 																{% endif %}
 															</p>
+															<p>
+																<button name="HideField{{elements}}">
+																	{% if elements in hides_fields %}
+																		Раскрыть
+																	{% else %}
+																		Скрыть
+																	{% endif %}
+																</button>
+															</p>
 														</center>
 													</th>
 												</tr>
-												{% for field in elements %}
-													<tr>
-														<td>{{field}}</td>
-													</tr>
-												{% endfor %}
+												{% if elements not in hides_fields %}
+													{% for field in elements %}
+														<tr>
+															<td>{{field}}</td>
+														</tr>
+													{% endfor %}
+												{% endif %}
 											</table></center>
 											<p></p>
 										{% endfor %}
