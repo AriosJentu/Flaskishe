@@ -8,8 +8,14 @@
 	<form name="Overview" action="/overview" method='POST'>
 		<button name="Back" type="submit">Вернуться</button>
 		<center>
+			<p>Debug:</p>
+			<p id="titledebug"></p>
+			
+			<p></p>
+
 			<h1>Обзор Расписания</h1>
 			<p></p>
+
 
 			<font size=3>
 				<table>
@@ -98,29 +104,34 @@
 				</table>
 
 				<p></p>
-				<table id="tab" class="elem">
-					<tr>
-						<th>
-							<p></p>
-						</th>
-						{% for col in jcols %}
-							<th>
-								<center>
-									{% if col == None %}
-										<i>Неизвестно</i>
-									{% else %}
-										{{col}}
-									{% endif %}
-								</center>
-							</th>
-						{% endfor %}
-					</tr>
+				<div class="divTable">
+					<div class="divTableBody">
+						
+						<div class="divTableRow"> 
+						
+							<div class="divTableSideHead" style="width:{{join_row.width}}">
+								<!--Nothing-->
+							</div>
+						
+							{% for col in jcols %}
 
-					{% for row in jrows %}
+								<div class="divTableHead"> 
+									<center>
+										{% if col == None %}
+											<i>Неизвестно</i>
+										{% else %}
+											{{col}}
+										{% endif %}
+									</center>
+								</div>
 
-						<tr>
-							<th>
-								<center>
+							{% endfor %}
+						</div>
+
+						{% for row in jrows %}
+							<div class="divTableRow"> 
+
+								<div class="divTableSideCell">
 									<p>
 										{% if row == None %}
 											<i>Неизвестно</i>
@@ -137,16 +148,17 @@
 											{% endif %}
 										</button>
 									</p>
-								</center>
-							</th>
-							{% for frow in range(table[row]|length) %}
-								<td>
-									{% if row not in hides %}
-										{% for elements in table[row][frow] %}
-											<center><table id="tab">
-												<tr>
-													<th>
-														<center>
+								</div>
+
+								{% for frow in range(table[row]|length) %}
+								
+									<div class="divTableCell">
+										{% if row not in hides %}
+											{% for elements in table[row][frow] %}
+										
+												<center>
+													<div class="divDrag" name="Div{{elements}}">
+														<div class="divDragger" name="Div{{elements}}">
 															<p>
 																{% if row == None %}
 																	<i>Неизвестно</i>
@@ -161,6 +173,8 @@
 																	{{jcols[frow]}}
 																{% endif %}
 															</p>
+														</div>
+														<div class="divElements" name="Div{{elements}}">
 															<p>
 																<button name="HideField{{elements}}">
 																	{% if elements in hides_fields %}
@@ -170,28 +184,33 @@
 																	{% endif %}
 																</button>
 															</p>
-														</center>
-													</th>
-												</tr>
-												{% if elements not in hides_fields %}
-													{% for field in elements %}
-														<tr>
-															<td>{{field}}</td>
-														</tr>
-													{% endfor %}
-												{% endif %}
-											</table></center>
-											<p></p>
-										{% endfor %}
-									{% endif %}
-								</td>
-							{% endfor %}
-						</tr>
+															{% if elements not in hides_fields %}
+																{% for field in elements %}
+																	<hr color="black" size="1"/>
+																	<p>{{field}}</p>
+																{% endfor %}
+															{% endif %}
+															<p></p>
+														</div>
+													</div>
+													<div class="divElements" name="Div{{elements}}" id="divRedBlock"></div>
+													<p></p>
 
-					{% endfor %}
+												</center>
+											{% endfor %}
+										{% endif %}
+									</div>
 
-				</table>
+								{% endfor %}
+
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+
 			</font>
 		</center>
 	</form>
+	
+	<script type="text/javascript" src="../static/script/dragging.js"></script>
 </body>

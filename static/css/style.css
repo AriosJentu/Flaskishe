@@ -15,3 +15,72 @@ body {
 	text-align: left;
 	padding: 15px;
 }
+
+.divDrag {
+	/*position: absolute;*/
+	z-index: 9;
+	text-align: center;
+	border: 1px solid black;
+}
+
+.divDragger {
+	padding: 10px;
+	cursor: move;
+	z-index: 10;
+	background-color: #EEEEEE;
+	border-bottom: 1px solid black;
+
+}
+
+#divRedBlock {
+	display:none;
+	width: 100px;
+	height: 100px;
+	background: #cd2b2b;
+	border: 1px solid #9b0c0c;
+}
+
+.divTable{
+	display: table;
+}
+
+.divTableRow {
+	display: table-row;
+}
+
+.divTableHeading {
+	background-color: #FFF;
+	display: table-header-group;
+}
+
+.divTableCell, .divTableHead, .divTableSideCell, .divTableSideHead {
+	border-right: 1px solid #000;
+	border-bottom: 1px solid #000;
+	display: table-cell;
+	padding: 3px 10px;
+}
+
+.divTableSideCell, .divTableSideHead {
+	border-left: 1px solid #000;
+}
+
+.divTableHead, .divTableSideHead {
+	border-top: 1px solid #000;
+}
+
+
+.divTableHeading {
+	background-color: #FFF;
+	display: table-header-group;
+	font-weight: bold;
+}
+
+.divTableFoot {
+	background-color: #FFF;
+	display: table-footer-group;
+	font-weight: bold;
+}
+
+.divTableBody {
+	display: table-row-group;
+}
