@@ -8,8 +8,9 @@
 	<form name="Overview" action="/overview" method='POST'>
 		<button name="Back" type="submit">Вернуться</button>
 		<center>
-			<p>Debug:</p>
+			<!--p>Debug:</p-->
 			<p id="titledebug"></p>
+			<input id="DatabaseEditor" name="DatabaseEditor" value="" class="hiddenInput"/>
 			
 			<p></p>
 
@@ -76,7 +77,7 @@
 					</tr>
 
 				</table>
-				<button name="Accept" type="submit">Применить</button>
+				<button id="Accept" name="Accept" type="submit">Применить</button>
 
 				<p></p>
 				<h3>Сортировка</h3>
@@ -117,11 +118,7 @@
 
 								<div class="divTableHead"> 
 									<center>
-										{% if col == None %}
-											<i>Неизвестно</i>
-										{% else %}
-											{{col}}
-										{% endif %}
+										{{col|safe}}
 									</center>
 								</div>
 
@@ -133,11 +130,7 @@
 
 								<div class="divTableSideCell">
 									<p>
-										{% if row == None %}
-											<i>Неизвестно</i>
-										{% else %}
-											{{row}}
-										{% endif %}
+										{{row|safe}}
 									</p>
 									<p>
 										<button name="HideRow{{row}}">
@@ -160,18 +153,10 @@
 													<div class="divDrag" name="Div{{elements}}">
 														<div class="divDragger" name="Div{{elements}}">
 															<p>
-																{% if row == None %}
-																	<i>Неизвестно</i>
-																{% else %}
-																	{{row}}
-																{% endif %}
+																{{row|safe}}
 															</p>
 															<p>
-																{% if jcols[frow] == None %}
-																	<i>Неизвестно</i>
-																{% else %}
-																	{{jcols[frow]}}
-																{% endif %}
+																{{jcols[frow]|safe}}
 															</p>
 														</div>
 														<div class="divElements" name="Div{{elements}}">
@@ -187,7 +172,7 @@
 															{% if elements not in hides_fields %}
 																{% for field in elements %}
 																	<hr color="black" size="1"/>
-																	<p>{{field}}</p>
+																	<p>{{field|safe}}</p>
 																{% endfor %}
 															{% endif %}
 															<p></p>

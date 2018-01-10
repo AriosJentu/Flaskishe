@@ -21,6 +21,7 @@ body {
 	z-index: 9;
 	text-align: center;
 	border: 1px solid black;
+	background-color: #FFFFFF;
 }
 
 .divDragger {
@@ -83,4 +84,8 @@ body {
 
 .divTableBody {
 	display: table-row-group;
+}
+
+.hiddenInput {
+	display: none
 }

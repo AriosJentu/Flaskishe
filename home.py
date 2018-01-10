@@ -1,6 +1,7 @@
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, json, Response
 from math import ceil
+
 
 from db import *
 from tablegen import *
@@ -140,10 +141,18 @@ def open():
 				#print(values)
 				#print(get_real_values(current_table, values))
 				#print()
-				
+
 				upd_frm = {columns[i]:edit_rows[i] for i in range(len(columns))}
 				upd_to = {columns[i]:values[i] for i in range(len(columns))}
 				edit_rows = []
+
+				print("UPDATING MENU:")
+				print(current_table)
+				print("FROM: ")
+				print(upd_frm)
+				print("TO:")
+				print(upd_to)
+				print()
 
 				update_record(current_table, upd_frm, upd_to)
 
@@ -278,7 +287,7 @@ def edit():
 @app.route("/overview", methods=["GET", "POST"])
 def overview():
 
-	global join_column, join_row, ordering_column, tables_info, hiding_tables, hiding_fields
+	global join_column, join_row, ordering_column, tables_info, hiding_tables, hiding_fields, current_columns, current_rows
 
 	columns_asc = None
 	rows_asc = None
@@ -287,15 +296,93 @@ def overview():
 	row_asc_type = request.form.get("OrderTypeRows")
 	colname = request.form.get("JoiningTableColumns")
 	rowname = request.form.get("JoiningTableRows")
+	edit_values = str(request.form.get("DatabaseEditor"))
+
+	if edit_values != "None" and len(edit_values) > 3 and edit_values[:3] == "Div":
+		print(edit_values)
+
+		columns = [i.name for i in tables_info["SchedItems"]]
+
+		upd_values, cell_from, cell_to = eval(edit_values[3:])
+
+		from_row = cell_from//len(current_columns)					#index
+		from_col = cell_from - from_row*len(current_columns)		#index
+
+		print("ROWS/COLS FROM:")
+		print(from_row, from_col)
+
+		to_row = cell_to//len(current_columns)						#index
+		to_col = cell_to - from_row*len(current_columns)			#index
+		print("ROWS/COLS TO:")
+		print(to_row, to_col)
+		
+		print("COLUMNS: ")
+		print(current_columns)
+		print("ROWS: ")
+		print(current_rows)
+
+		column_from = current_columns[from_col]						#value (ex: Понедельник)
+		column_to = current_columns[to_col]							#value (ex: Вторник)
+
+		row_from = current_rows[from_row]							#value (ex: B8203a)
+		row_to = current_rows[to_row]								#value (ex: B8203b)
+
+		upd_from = {}
+		k = 0
+		for col in columns:
+			if col == join_column.name:
+				upd_from[col] = column_from
+			elif col == join_row.name:
+				upd_from[col] = row_from
+			else:
+				upd_from[col] = upd_values[k]
+				k = k+1
+
+		upd_to = {}
+		k = 0
+		for col in columns:
+			if col == join_column.name:
+				upd_to[col] = column_to
+			elif col == join_row.name:
+				upd_to[col] = row_to
+			else:
+				upd_to[col] = upd_values[k]
+				k = k+1
+
+
+
+		print("UPDATING:")
+		print(join_column.name)
+		print(join_row.name)
+		print("FROM:")
+		print(column_from)
+		print(row_from)
+		print("TO:")
+		print(column_to)
+		print(row_to)
+		print()
+
+		print("UPD FROM:")
+		print(upd_from)
+		print("UPD TO:")
+		print(upd_to)
+		print()
+
+		update_record("SchedItems", upd_from, upd_to)
+
+
+
+
 	joining_columns = None #join_column
 	joining_rows = None #join_row
 
 	for i in tables_info["SchedItems"]:
+
 		if i.title == colname:
-			print(colname, "COLUMN")
+			#print(colname, "COLUMN")
 			joining_columns = i
 		if i.title == rowname:
-			print(rowname, "ROW")
+			#print(rowname, "ROW")
 			joining_rows = i
 
 
@@ -310,6 +397,7 @@ def overview():
 		rows_asc = False
 
 	for i in request.form:
+
 		if i == "Back":
 			return redirect("/")
 
@@ -363,6 +451,13 @@ def overview():
 	join_row.ascending = rows_asc
 	table, rows, columns = generate_schedule(join_column, join_row, ordering_column)
 
+	#print(rows)
+	#print(columns)
+
+	current_columns = columns 
+	current_rows = rows
+
+	print("PAGE LOADED")
 	return render_template(
 		"overview.html",
 		jcols=columns,

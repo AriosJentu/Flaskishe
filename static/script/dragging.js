@@ -9,17 +9,22 @@ for (var element of elements) {
 var curX = null, curY = null;
 document.addEventListener('mousemove', onMouseUpdate, false);
 document.addEventListener('mouseenter', onMouseUpdate, false);
-var spt = document.getElementById("titledebug");
+
+var spt = document.getElementById("titledebug"); 
+var flaskEditor = document.getElementById("DatabaseEditor");
+
 function onMouseUpdate(e) {
-    curX = e.pageX;
-    curY = e.pageY;
+	curX = e.pageX;
+	curY = e.pageY;
 }
 
 function dragElement(elemnt) {
 
-	var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+	var pos1 = 0, pos2 = 0;
 	var width = null, height = null;
-	var is_mouse_down = false
+	var isMouseDown = false
+	var curXprev = 0, curYprev = 0;
+	var moveFrom = 0, moveTo = 0;
 
 	elemnt.onmousedown = dragMouseDown;
 	elemnt.onmouseover = mouseOver;
@@ -28,6 +33,8 @@ function dragElement(elemnt) {
 	var div_elements = document.getElementsByClassName("divElements");
 	var div_element = null;
 	var div_redblock = null;
+
+	var div_parent = null;
 
 
 	for (var div_el of div_elements) {
@@ -47,21 +54,24 @@ function dragElement(elemnt) {
 	var div_drag_blocks = document.getElementsByClassName("divDrag");
 	var div_dragger = null;
 
+	var ceils = document.getElementsByClassName("divTableCell")
+
 	for (var div_drg of div_drag_blocks) {
 		if (div_drg.getAttribute("name") === elemnt.getAttribute("name")) {
 			div_dragger = div_drg;
+			div_parent = div_drg.parentNode.parentNode
 		}
 	}
 
 	function mouseOver(el) {
-		if (!is_mouse_down) {
+		if (!isMouseDown) {
 
 			elemnt.style["background-color"] = "#9EEE9E";
 		}
 	}
 
 	function mouseOut(el) {
-		if (!is_mouse_down) {
+		if (!isMouseDown) {
 
 			elemnt.style["background-color"] = "#EEEEEE";
 		}
@@ -73,20 +83,21 @@ function dragElement(elemnt) {
 		
 		el = el || window.event;
 
-		pos3 = el.clientX;
-		pos4 = el.clientY;
 		width = elemnt.offsetWidth;
 		height = element.offsetHeight;
-		is_mouse_down = true;
+
+		curXprev = curX;
+		curYprev = curY;
+
+		isMouseDown = true;
 
 		
 		elemnt.style.position = "absolute";
 		elemnt.style.border = "1px solid black";
-		elemnt.style["background-color"] = "#ffD9CC";
+		elemnt.style["background-color"] = "#FFD9CC";
 
 		if (div_dragger !== null) {
 			div_dragger.style.border = "0px solid black";
-			spt.innerHTML = "Found"
 		}
 
 		if (div_element !== null) {
@@ -106,7 +117,12 @@ function dragElement(elemnt) {
 		elemnt.style.left = elemnt.offsetLeft + "px";
 		elemnt.style.top = elemnt.offsetTop + "px";
 
-		//spt.innerHTML = "Start Positions:\nX: " + pos3 + "; Y:" + pos4 + ";\nFROM:\nX: " + elemnt.offsetLeft + "; Y: " + elemnt.offsetTop + ";";
+		for (var ceil_id = 0; ceil_id < ceils.length; ceil_id++) {
+			var ceil = ceils[ceil_id];
+			if (ceil === div_parent) {
+				moveFrom = ceil_id;
+			}
+		}
 
 		document.onmouseup = closeDragElement;
 		document.onmousemove = elementDrag;
@@ -116,16 +132,41 @@ function dragElement(elemnt) {
 
 	function elementDrag(el) {
 
-		//alert("Dragging "+elemnt.getAttribute("name"));
 		el = el || window.event;
 
-		pos1 = pos3 - el.clientX;
-		pos2 = pos4 - el.clientY;
-		pos3 = el.clientX;
-		pos4 = el.clientY;
+		pos1 = elemnt.offsetLeft + (curX - curXprev);
+		pos2 = elemnt.offsetTop + (curY - curYprev);
 
-		elemnt.style.left = (elemnt.offsetLeft - pos1) + "px";
-		elemnt.style.top = (elemnt.offsetTop - pos2) + "px";
+		elemnt.style.left = pos1 + "px";
+		elemnt.style.top = pos2 + "px";
+
+		var visited = false
+		for (var ceil_id = 0; ceil_id < ceils.length; ceil_id++) {
+			var ceil = ceils[ceil_id];
+			if (ceil !== div_parent) {
+
+				var ax = ceil.offsetLeft, ay = ceil.offsetTop, aw = ceil.offsetWidth, ah = ceil.offsetHeight;
+				
+				if (curX >= ax && curX <= ax+aw && curY >= ay && curY <= ay+ah) {
+					ceil.style["background-color"] = "#C8EEC8";
+					moveTo = ceil_id;
+					visited = true;
+				} else {
+					ceil.style.removeProperty("background-color");
+				}
+			}
+		}
+
+		if (visited) {
+
+			elemnt.style["background-color"] = "#9EEE9E";
+		} else {
+
+			elemnt.style["background-color"] = "#FFD9CC";
+		}
+
+		curXprev = curX;
+		curYprev = curY;
 
 	}
 
@@ -143,7 +184,7 @@ function dragElement(elemnt) {
 		elemnt.style.removeProperty("width");
 		elemnt.style.removeProperty("height");
 
-		is_mouse_down = false;
+		isMouseDown = false;
 
 		elemnt.style["background-color"] = "#EEEEEE";
 
@@ -157,6 +198,18 @@ function dragElement(elemnt) {
 
 			div_redblock.style.display = "none";
 		}
+
+		for (ceil of ceils) {
+
+			ceil.style.removeProperty("background-color");
+		}
+ 
+		var result = elemnt.getAttribute("name") + ", " + moveFrom + ", " + moveTo;
+		flaskEditor.value = result;
+
+		//location.reload();
+		document.getElementById("Accept").click();
+
 	}
 
 }

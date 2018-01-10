@@ -10,7 +10,11 @@ join_column.ascending = True
 ordering_column = tables_info["SchedItems"][1] #lessons column by default
 ordering_column.ascending = None
 
+current_columns, current_rows = [], []
+
 def generate_schedule(joining_column=join_column, joining_row=join_row, order_by=ordering_column):
+
+	global current_columns, current_rows
 
 	#---------------------------------------------------------------------------------------------------------
 	#ORDERING COLUMNS
@@ -28,7 +32,8 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 	if joining_column == tables_info["SchedItems"][5]:
 		columns.append(None)
 	
-	print(columns)
+	current_columns = columns
+	#print(columns)
 
 	#ORDERING ROWS
 	if joining_row.table_from:
@@ -45,7 +50,8 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 	if joining_row == tables_info["SchedItems"][5]:
 		rows.append(None)
 
-	print(rows)
+	current_rows = rows
+	#print(rows)
 	#---------------------------------------------------------------------------------------------------------
 
 	query = "SELECT "

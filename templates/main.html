@@ -195,11 +195,7 @@
 								{% for item in items %}
 									
 									<td>
-										{% if item != None %}
-											{{ item|safe }}
-										{% else %}
-											<i>Неизвестно</i>
-										{% endif %}
+										{{ item|safe }}
 									</td>
 
 								{% endfor %}
