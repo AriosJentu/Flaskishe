@@ -25,6 +25,7 @@ function dragElement(elemnt) {
 	var isMouseDown = false
 	var curXprev = 0, curYprev = 0;
 	var moveFrom = -1, moveTo = -1;
+	var elemntInner = elemnt.innerHTML;
 
 	elemnt.onmousedown = dragMouseDown;
 	elemnt.onmouseover = mouseOver;
@@ -35,6 +36,20 @@ function dragElement(elemnt) {
 	var divRedBlock = null;
 
 	var divParent = null;
+
+
+	var divColumns = document.getElementsByClassName("divTableHead");
+	var divColumnNames = []
+	for (var elem of divColumns) {
+		divColumnNames.push(elem.innerHTML);
+	}
+
+	var divRows = document.getElementsByClassName("divTableSideCell");
+	var divRowNames = []
+	for (var elem of divRows) {
+		var divTag = elem.getElementsByTagName("p")[0]
+		divRowNames.push(divTag.innerHTML);
+	}
 
 
 	for (var elem of divElements) {
@@ -54,7 +69,7 @@ function dragElement(elemnt) {
 	var divDragBlocks = document.getElementsByClassName("divDrag");
 	var divDragger = null;
 
-	var ceils = document.getElementsByClassName("divTableCell")
+	var cells = document.getElementsByClassName("divTableCell")
 
 	for (var elem of divDragBlocks) {
 		if (elem.getAttribute("name") === elemnt.getAttribute("name")) {
@@ -117,10 +132,10 @@ function dragElement(elemnt) {
 		elemnt.style.left = elemnt.offsetLeft + "px";
 		elemnt.style.top = elemnt.offsetTop + "px";
 
-		for (var ceilId = 0; ceilId < ceils.length; ceilId++) {
-			var ceil = ceils[ceilId];
-			if (ceil === divParent) {
-				moveFrom = ceilId;
+		for (var cellId = 0; cellId < cells.length; cellId++) {
+			var cell = cells[cellId];
+			if (cell === divParent) {
+				moveFrom = cellId;
 			}
 		}
 
@@ -141,22 +156,33 @@ function dragElement(elemnt) {
 		elemnt.style.top = pos2 + "px";
 
 		var visited = false
-		for (var ceilId = 0; ceilId < ceils.length; ceilId++) {
-			var ceil = ceils[ceilId];
-			if (ceil !== divParent && !visited) {
+		for (var cellId = 0; cellId < cells.length; cellId++) {
+			var cell = cells[cellId];
+		
+			if (cell !== divParent && !visited) {
 
-				var ax = ceil.offsetLeft, ay = ceil.offsetTop, aw = ceil.offsetWidth, ah = ceil.offsetHeight;
+				var ax = cell.offsetLeft, ay = cell.offsetTop, aw = cell.offsetWidth, ah = cell.offsetHeight;
 				
 				if (curX >= ax && curX <= ax+aw && curY >= ay && curY <= ay+ah) {
-					ceil.style["background-color"] = "#C8EEC8";
-					moveTo = ceilId;
+					cell.style["background-color"] = "#C8EEC8";
+
+					var rowId = Math.floor(cellId/divColumns.length);
+					var colId = cellId - rowId*divColumns.length;
+
+					elemnt.innerHTML = divRowNames[rowId] + divColumnNames[colId]; 
+
+					moveTo = cellId;
 					visited = true;
 				} else {
-					ceil.style.removeProperty("background-color");
+					cell.style.removeProperty("background-color");
+					elemnt.innerHTML = "<i>Пусто</i>";
 					moveTo = -1;
 				}
-			} else if (!visited) {
-				moveTo = -1;
+			} else {
+				cell.style.removeProperty("background-color");
+				if (!visited) {
+					moveTo = -1;
+				}
 			}
 		}
 
@@ -178,6 +204,8 @@ function dragElement(elemnt) {
 		document.onmouseup = null;
 		document.onmousemove = null;
 		elemnt.style.position = "relative";
+		elemnt.innerHTML = elemntInner;
+
 
 		elemnt.style.removeProperty("border");
 
@@ -202,9 +230,9 @@ function dragElement(elemnt) {
 			divRedBlock.style.display = "none";
 		}
 
-		for (var ceil of ceils) {
+		for (var cell of cells) {
 
-			ceil.style.removeProperty("background-color");
+			cell.style.removeProperty("background-color");
 		}
  
  		if (moveTo >= 0) {
