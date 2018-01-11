@@ -33,7 +33,6 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 		columns.append(None)
 	
 	current_columns = columns
-	#print(columns)
 
 	#ORDERING ROWS
 	if joining_row.table_from:
@@ -51,7 +50,7 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 		rows.append(None)
 
 	current_rows = rows
-	#print(rows)
+
 	#---------------------------------------------------------------------------------------------------------
 
 	query = "SELECT "
@@ -72,7 +71,7 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 
 	cursr.execute(query)
 	fetch = [list(i) for i in cursr.fetchall()]
-	#print(fetch)
+
 	#---------------------------------------------------------------------------------------------------------
 	
 	idx_column = tables_info["SchedItems"].index(joining_column)
@@ -98,24 +97,3 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 			result[row].append(preresult[col][row])
 
 	return result, rows, columns
-
-a, b, c = generate_schedule()
-"""for i, v in a.items():
-	print(i)
-	for k, l in v.items():
-		print(k)
-		print(l)
-
-	print()"""
-#print(b)
-#print(c)
-
-"""x = list(a.values())
-print(x, len(x))
-for j in x:
-	for i in range(len(j)):
-		print(i)
-		print(j[i].row)
-		print(j[i].values)
-		print()
-print(a)"""

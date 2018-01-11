@@ -1,5 +1,5 @@
 
-from flask import Flask, render_template, request, redirect, url_for, json, Response
+from flask import Flask, render_template, request, redirect, url_for
 from math import ceil
 
 
@@ -36,10 +36,7 @@ def open():
 	compare_type = request.form.get("TableQueryComparation")
 	page_size = request.form.get("TablePageSizes")
 	
-	#print(current_table)
-	#print(compare_type)
-	#print(page_size)
-	#print()
+	##################################################################
 
 	if current_table == None:
 		current_table = saved_table
@@ -134,25 +131,9 @@ def open():
 						val = request.form.get("EditColumn"+str(i))
 						values.append(val)
 
-				#print()
-				#print("FROM:")
-				#print(edit_rows)
-				#print("EDITING:")
-				#print(values)
-				#print(get_real_values(current_table, values))
-				#print()
-
 				upd_frm = {columns[i]:edit_rows[i] for i in range(len(columns))}
 				upd_to = {columns[i]:values[i] for i in range(len(columns))}
 				edit_rows = []
-
-				print("UPDATING MENU:")
-				print(current_table)
-				print("FROM: ")
-				print(upd_frm)
-				print("TO:")
-				print(upd_to)
-				print()
 
 				update_record(current_table, upd_frm, upd_to)
 
@@ -167,17 +148,10 @@ def open():
 				for i in columns:
 					values.append(request.form.get("EditColumn"+str(i)))
 
-				#print()
-				#print("ADDING:")
-				#print(values)
-				#print(get_real_values(current_table, values))
-				#print()
-				
 				add_record(current_table, values)				
 
 
 		if i == "GenerateTable" and saved_table != current_table:
-			#print(saved_table, current_table)
 
 			order_by = None
 			is_edit = False
@@ -204,8 +178,6 @@ def open():
 				cmp_char = request.form.get("QueryCmp"+str(i))
 				value = request.form.get("QueryValue"+str(i))
 				
-				#print([column, cmp_char, value])
-
 				if value != None and value != "" and value != " ":
 
 					column = get_name_from_title(current_table, column)
@@ -214,8 +186,6 @@ def open():
 				else:
 					cmp_queries.append(-1)
 
-
-	#print(current_table)
 
 	order = order_by
 	containing, table_size = generate_table(
@@ -227,7 +197,7 @@ def open():
 		cmp_type=compare_type
 	)
 
-	#print(table_size)
+
 	return render_template(
 		"main.html",
 		curtable=current_table,
@@ -273,9 +243,6 @@ def edit():
 			columns.remove("ID")
 			break
 
-	#print(values)
-	#print(edits)
-
 	return render_template(
 		"edit.html",
 		editrows=edits,
@@ -305,35 +272,25 @@ def overview():
 
 		upd_values, cell_from, cell_to = eval(edit_values[3:])
 
-		from_row = cell_from//len(current_columns)					#index
-		from_col = cell_from - from_row*len(current_columns)		#index
+		from_row_indx = cell_from//len(current_columns)					
+		from_col_indx = cell_from - from_row_indx*len(current_columns)	
 
-		print("ROWS/COLS FROM:")
-		print(from_row, from_col)
+		to_row_indx = cell_to//len(current_columns)						
+		to_col_indx = cell_to - from_row_indx*len(current_columns)			
 
-		to_row = cell_to//len(current_columns)						#index
-		to_col = cell_to - from_row*len(current_columns)			#index
-		print("ROWS/COLS TO:")
-		print(to_row, to_col)
-		
-		print("COLUMNS: ")
-		print(current_columns)
-		print("ROWS: ")
-		print(current_rows)
+		column_from_value = current_columns[from_col_indx]					
+		column_to_value = current_columns[to_col_indx]							
 
-		column_from = current_columns[from_col]						#value (ex: Понедельник)
-		column_to = current_columns[to_col]							#value (ex: Вторник)
-
-		row_from = current_rows[from_row]							#value (ex: B8203a)
-		row_to = current_rows[to_row]								#value (ex: B8203b)
+		row_from_value = current_rows[from_row_indx]							
+		row_to_value = current_rows[to_row_indx]								
 
 		upd_from = {}
 		k = 0
 		for col in columns:
 			if col == join_column.name:
-				upd_from[col] = column_from
+				upd_from[col] = column_from_value
 			elif col == join_row.name:
-				upd_from[col] = row_from
+				upd_from[col] = row_from_value
 			else:
 				upd_from[col] = upd_values[k]
 				k = k+1
@@ -342,57 +299,41 @@ def overview():
 		k = 0
 		for col in columns:
 			if col == join_column.name:
-				upd_to[col] = column_to
+				upd_to[col] = column_to_value
 			elif col == join_row.name:
-				upd_to[col] = row_to
+				upd_to[col] = row_to_value
 			else:
 				upd_to[col] = upd_values[k]
 				k = k+1
 
-
-
-		print("UPDATING:")
-		print(join_column.name)
-		print(join_row.name)
-		print("FROM:")
-		print(column_from)
-		print(row_from)
-		print("TO:")
-		print(column_to)
-		print(row_to)
-		print()
-
-		print("UPD FROM:")
-		print(upd_from)
-		print("UPD TO:")
-		print(upd_to)
-		print()
 
 		update_record("SchedItems", upd_from, upd_to)
 
 
 
 
-	joining_columns = None #join_column
-	joining_rows = None #join_row
+	joining_columns = None
+	joining_rows = None
 
 	for i in tables_info["SchedItems"]:
 
 		if i.title == colname:
-			#print(colname, "COLUMN")
 			joining_columns = i
+
 		if i.title == rowname:
-			#print(rowname, "ROW")
 			joining_rows = i
 
 
 	if col_asc_type == "По Возрастанию":
 		columns_asc = True
+
 	elif col_asc_type == "По Убыванию":
 		columns_asc = False
 
+
 	if row_asc_type == "По Возрастанию":
 		rows_asc = True
+
 	elif row_asc_type == "По Убыванию":
 		rows_asc = False
 
@@ -450,9 +391,6 @@ def overview():
 	join_column.ascending = columns_asc
 	join_row.ascending = rows_asc
 	table, rows, columns = generate_schedule(join_column, join_row, ordering_column)
-
-	#print(rows)
-	#print(columns)
 
 	current_columns = columns 
 	current_rows = rows

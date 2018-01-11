@@ -24,42 +24,42 @@ function dragElement(elemnt) {
 	var width = null, height = null;
 	var isMouseDown = false
 	var curXprev = 0, curYprev = 0;
-	var moveFrom = 0, moveTo = 0;
+	var moveFrom = -1, moveTo = -1;
 
 	elemnt.onmousedown = dragMouseDown;
 	elemnt.onmouseover = mouseOver;
 	elemnt.onmouseout = mouseOut;
 
-	var div_elements = document.getElementsByClassName("divElements");
-	var div_element = null;
-	var div_redblock = null;
+	var divElements = document.getElementsByClassName("divElements");
+	var divElement = null;
+	var divRedBlock = null;
 
-	var div_parent = null;
+	var divParent = null;
 
 
-	for (var div_el of div_elements) {
-		if (div_el.getAttribute("name") === elemnt.getAttribute("name")) {
+	for (var elem of divElements) {
+		if (elem.getAttribute("name") === elemnt.getAttribute("name")) {
 
-			if (div_el.getAttribute("id") === "divRedBlock") {
+			if (elem.getAttribute("id") === "divRedBlock") {
 
-				div_redblock = div_el;
+				divRedBlock = elem;
 
 			} else {
 
-				div_element = div_el;
+				divElement = elem;
 			}
 		}
 	}
 
-	var div_drag_blocks = document.getElementsByClassName("divDrag");
-	var div_dragger = null;
+	var divDragBlocks = document.getElementsByClassName("divDrag");
+	var divDragger = null;
 
 	var ceils = document.getElementsByClassName("divTableCell")
 
-	for (var div_drg of div_drag_blocks) {
-		if (div_drg.getAttribute("name") === elemnt.getAttribute("name")) {
-			div_dragger = div_drg;
-			div_parent = div_drg.parentNode.parentNode
+	for (var elem of divDragBlocks) {
+		if (elem.getAttribute("name") === elemnt.getAttribute("name")) {
+			divDragger = elem;
+			divParent = elem.parentNode.parentNode
 		}
 	}
 
@@ -96,19 +96,19 @@ function dragElement(elemnt) {
 		elemnt.style.border = "1px solid black";
 		elemnt.style["background-color"] = "#FFD9CC";
 
-		if (div_dragger !== null) {
-			div_dragger.style.border = "0px solid black";
+		if (divDragger !== null) {
+			divDragger.style.border = "0px solid black";
 		}
 
-		if (div_element !== null) {
+		if (divElement !== null) {
 
-			div_element.style.display = "none";
+			divElement.style.display = "none";
 		}
-		if (div_redblock !== null) {
+		if (divRedBlock !== null) {
 
-			div_redblock.style.display = "block";
-			div_redblock.style.width = width+"px";
-			div_redblock.style.height = width+"px";
+			divRedBlock.style.display = "block";
+			divRedBlock.style.width = width+"px";
+			divRedBlock.style.height = width+"px";
 		}
 
 		elemnt.style.width = width+"px";
@@ -117,10 +117,10 @@ function dragElement(elemnt) {
 		elemnt.style.left = elemnt.offsetLeft + "px";
 		elemnt.style.top = elemnt.offsetTop + "px";
 
-		for (var ceil_id = 0; ceil_id < ceils.length; ceil_id++) {
-			var ceil = ceils[ceil_id];
-			if (ceil === div_parent) {
-				moveFrom = ceil_id;
+		for (var ceilId = 0; ceilId < ceils.length; ceilId++) {
+			var ceil = ceils[ceilId];
+			if (ceil === divParent) {
+				moveFrom = ceilId;
 			}
 		}
 
@@ -141,19 +141,22 @@ function dragElement(elemnt) {
 		elemnt.style.top = pos2 + "px";
 
 		var visited = false
-		for (var ceil_id = 0; ceil_id < ceils.length; ceil_id++) {
-			var ceil = ceils[ceil_id];
-			if (ceil !== div_parent) {
+		for (var ceilId = 0; ceilId < ceils.length; ceilId++) {
+			var ceil = ceils[ceilId];
+			if (ceil !== divParent && !visited) {
 
 				var ax = ceil.offsetLeft, ay = ceil.offsetTop, aw = ceil.offsetWidth, ah = ceil.offsetHeight;
 				
 				if (curX >= ax && curX <= ax+aw && curY >= ay && curY <= ay+ah) {
 					ceil.style["background-color"] = "#C8EEC8";
-					moveTo = ceil_id;
+					moveTo = ceilId;
 					visited = true;
 				} else {
 					ceil.style.removeProperty("background-color");
+					moveTo = -1;
 				}
+			} else if (!visited) {
+				moveTo = -1;
 			}
 		}
 
@@ -188,27 +191,30 @@ function dragElement(elemnt) {
 
 		elemnt.style["background-color"] = "#EEEEEE";
 
-		if (div_dragger !== null) {
-			div_dragger.style.border = "1px solid black";
+		if (divDragger !== null) {
+			divDragger.style.border = "1px solid black";
 		}
-		if (div_element !== null) {
-			div_element.style.removeProperty("display");
+		if (divElement !== null) {
+			divElement.style.removeProperty("display");
 		}
-		if (div_redblock !== null) {
+		if (divRedBlock !== null) {
 
-			div_redblock.style.display = "none";
+			divRedBlock.style.display = "none";
 		}
 
-		for (ceil of ceils) {
+		for (var ceil of ceils) {
 
 			ceil.style.removeProperty("background-color");
 		}
  
-		var result = elemnt.getAttribute("name") + ", " + moveFrom + ", " + moveTo;
-		flaskEditor.value = result;
+ 		if (moveTo >= 0) {
 
-		//location.reload();
-		document.getElementById("Accept").click();
+			var result = elemnt.getAttribute("name") + ", " + moveFrom + ", " + moveTo;
+			flaskEditor.value = result;
+
+			//location.reload();
+			document.getElementById("Accept").click();
+ 		}
 
 	}
 
