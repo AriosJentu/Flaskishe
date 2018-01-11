@@ -41,7 +41,11 @@ body {
 	border: 1px solid #9b0c0c;
 }
 
-.divTable{
+::selection {
+	background:rgba(111, 0, 255, 0);
+}
+
+.divTable {
 	display: table;
 }
 

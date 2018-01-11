@@ -256,9 +256,6 @@ def overview():
 
 	global join_column, join_row, ordering_column, tables_info, hiding_tables, hiding_fields, current_columns, current_rows
 
-	columns_asc = None
-	rows_asc = None
-
 	col_asc_type = request.form.get("OrderTypeColumns")
 	row_asc_type = request.form.get("OrderTypeRows")
 	colname = request.form.get("JoiningTableColumns")
@@ -266,7 +263,6 @@ def overview():
 	edit_values = str(request.form.get("DatabaseEditor"))
 
 	if edit_values != "None" and len(edit_values) > 3 and edit_values[:3] == "Div":
-		print(edit_values)
 
 		columns = [i.name for i in tables_info["SchedItems"]]
 
@@ -278,19 +274,13 @@ def overview():
 		to_row_indx = cell_to//len(current_columns)						
 		to_col_indx = cell_to - from_row_indx*len(current_columns)			
 
-		column_from_value = current_columns[from_col_indx]					
-		column_to_value = current_columns[to_col_indx]							
-
-		row_from_value = current_rows[from_row_indx]							
-		row_to_value = current_rows[to_row_indx]								
-
 		upd_from = {}
 		k = 0
 		for col in columns:
 			if col == join_column.name:
-				upd_from[col] = column_from_value
+				upd_from[col] = current_columns[from_col_indx]
 			elif col == join_row.name:
-				upd_from[col] = row_from_value
+				upd_from[col] = current_rows[from_row_indx]
 			else:
 				upd_from[col] = upd_values[k]
 				k = k+1
@@ -299,9 +289,9 @@ def overview():
 		k = 0
 		for col in columns:
 			if col == join_column.name:
-				upd_to[col] = column_to_value
+				upd_to[col] = current_columns[to_col_indx]
 			elif col == join_row.name:
-				upd_to[col] = row_to_value
+				upd_to[col] = current_rows[to_row_indx]
 			else:
 				upd_to[col] = upd_values[k]
 				k = k+1
@@ -324,18 +314,8 @@ def overview():
 			joining_rows = i
 
 
-	if col_asc_type == "По Возрастанию":
-		columns_asc = True
-
-	elif col_asc_type == "По Убыванию":
-		columns_asc = False
-
-
-	if row_asc_type == "По Возрастанию":
-		rows_asc = True
-
-	elif row_asc_type == "По Убыванию":
-		rows_asc = False
+	rows_asc = True if row_asc_type == "По Возрастанию" else False if row_asc_type == "По Убыванию" else None
+	columns_asc = True if col_asc_type == "По Возрастанию" else False if col_asc_type == "По Убыванию" else None
 
 	for i in request.form:
 
@@ -357,14 +337,7 @@ def overview():
 			
 			if ordering_column.name == name:
 				
-				if ordering_column.ascending == None:
-					ordering_column.ascending = True
-				
-				elif ordering_column.ascending == True:
-					ordering_column.ascending = False
-
-				elif ordering_column.ascending == False:
-					ordering_column.ascending = None
+				ordering_column.ascending = {None:True, True:False, False:None}[ordering_column.ascending]
 
 			else:
 				for k in tables_info["SchedItems"]:
