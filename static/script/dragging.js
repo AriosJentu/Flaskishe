@@ -169,13 +169,13 @@ function dragElement(elemnt) {
 					var rowId = Math.floor(cellId/divColumns.length);
 					var colId = cellId - rowId*divColumns.length;
 
-					elemnt.innerHTML = divRowNames[rowId] + divColumnNames[colId]; 
+					elemnt.innerHTML = divRowNames[rowId] + divColumnNames[colId] + "<p>" + elemnt.getAttribute("id") + "</p>"; 
 
 					moveTo = cellId;
 					visited = true;
 				} else {
 					cell.style.removeProperty("background-color");
-					elemnt.innerHTML = "<i>Пусто</i>";
+					elemnt.innerHTML = "<p><i>Пусто</i></p><p>" + elemnt.getAttribute("id") + "</p>";
 					moveTo = -1;
 				}
 			} else {
