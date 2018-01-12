@@ -21,6 +21,9 @@ cmp_queries = []
 hiding_cells = []
 hiding_fields = []
 
+def array(string):
+	return [i[1:-1] if i.find("'") >= 0 or i.find('"') >= 0 else int(i) for i in string[1:-1].split(", ")]
+
 @app.route("/", methods=["GET", "POST"])
 def open():
 
@@ -99,14 +102,15 @@ def open():
 
 		if "EditR" in i:
 
-			edit_rows = eval(i[5:])
+			edit_rows = array(i[5:]) #eval(i[5:])
+			print(edit_rows)
 			is_editing = True
 			return redirect(url_for("edit"))
 
 
 		if "Delete" in i:
 
-			real_vals = get_real_values(current_table, eval(i[6:]))
+			real_vals = get_real_values(current_table, array(i[6:])) #eval(i[6:]))
 			
 			values = {}
 			for i in range(len(tables_info[current_table])):
@@ -324,8 +328,6 @@ def overview():
 				hiding_cells.remove(hideindex)
 			else:
 				hiding_cells.append(hideindex)
-
-
 
 		if "Title" in i:
 			name = i[5:]
