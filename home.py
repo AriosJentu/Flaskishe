@@ -379,6 +379,13 @@ def overview():
 
 			)
 
+		if "DeleteField" in i:
+
+			id_ = int(i[11:])
+			query = "DELETE FROM SchedItems WHERE ID == "+str(id_)
+			cursr.execute(query)
+
+
 		if i == "UpdateTable":
 		
 			if edit_field >= 0:
