@@ -243,17 +243,6 @@ def edit():
 	id_ = columns.index("ID")
 	columns.remove("ID")
 	edits = edit_rows[:id_] + edit_rows[id_+1:]
-	#for i in range(len(columns)):
-	#	if columns[i] == "ID":
-	#		values = values[:i]+values[i+1:]
-	#		edits = edits[:i]+edits[i+1:]
-	#		columns.remove("ID")
-	#		break
-
-	print("EDIT:")
-	print(edits)
-	print(columns)
-	print(values)
 
 	return render_template(
 		"edit.html",
@@ -319,7 +308,6 @@ def overview():
 				hiding_cells = []
 				hiding_fields = []
 				
-
 			join_column = joining_columns
 			join_row = joining_rows
 
@@ -350,10 +338,7 @@ def overview():
 			
 			query = "SELECT * FROM SchedItems WHERE ID == ?"
 			cursr.execute(query, (int(i[9:]),))
-			edits = list(cursr.fetchall()[0])
-			print("EDITS")
-			print(edits)
-			edits = get_real_values("SchedItems", edits, True)[1:]
+			edits = get_real_values("SchedItems", list(cursr.fetchall()[0]), True)[1:]
 
 			col_id = tables_info["SchedItems"].index(join_column) - 1
 			row_id = tables_info["SchedItems"].index(join_row) - 1
@@ -361,13 +346,7 @@ def overview():
 			values[col_id] = edits[col_id]
 			values[row_id] = edits[row_id]
 
-			print("FIELDS:")
-			print(edits)
-			print(columns)
-			print(values)
 			edit_field = int(i[9:])
-			print("EDIT FIELD:")
-			print(edit_field)
 
 			return render_template(
 				"edit.html",
@@ -397,13 +376,8 @@ def overview():
 					val = request.form.get("EditColumn"+str(k))
 					values.append(val)
 
-				print("VALUES")
-				print(values)
 				values = get_real_values("SchedItems", [edit_field] + values)[1:]
-				print(values)
 				query = "UPDATE SchedItems SET " + ", ".join([k + " == ? " for k in columns] ) + " WHERE ID == " + str(edit_field)
-				print("VALUES IPAL:")
-				print(query, values)
 				cursr.execute(query, tuple(values))
 
 
@@ -431,7 +405,6 @@ def overview():
 	current_columns = columns 
 	current_rows = rows
 
-	print("PAGE LOADED")
 	return render_template(
 		"overview.html",
 		jcols=columns,
