@@ -28,22 +28,24 @@
 						<td>
 							<select name="JoiningTableColumns">
 								{% for col in columns %}
-									<option value="{{col.title}}"
-										{% if col == join_col %}
-											SELECTED
-										{% endif %}
-									>
-										{{col.title}}
-									</option>
+									{% if col.title != "ID" %}
+										<option value="{{col.title}}"
+											{% if col == join_col %}
+												SELECTED
+											{% endif %}
+										>
+											{{col.title}}
+										</option>
+									{% endif %}
 								{% endfor%}							
 							</select>
 						</td>
 						<td>
 							<select name="OrderTypeColumns">
 								
-								<option value="Не Сортировать" {% if join_col.ascending == None %} SELECTED {% endif %}>Не Сортировать</option>
-								<option value="По Возрастанию" {% if join_col.ascending == True %} SELECTED {% endif %}>По Возрастанию</option>
-								<option value="По Убыванию" {% if join_col.ascending == False %} SELECTED {% endif %}>По Убыванию</option>
+								<option value="0" {% if join_col.ascending == None %} SELECTED {% endif %}>Не Сортировать</option>
+								<option value="1" {% if join_col.ascending == True %} SELECTED {% endif %}>По Возрастанию</option>
+								<option value="2" {% if join_col.ascending == False %} SELECTED {% endif %}>По Убыванию</option>
 								
 							</select>
 						</td>
@@ -55,22 +57,24 @@
 						<td>
 							<select name="JoiningTableRows">
 								{% for col in columns %}
-									<option value="{{col.title}}"
-										{% if col == join_row %}
-											SELECTED
-										{% endif %}
-									>
-										{{col.title}}
-									</option>
+									{% if col.title != "ID" %}
+										<option value="{{col.title}}"
+											{% if col == join_row %}
+												SELECTED
+											{% endif %}
+										>
+											{{col.title}}
+										</option>
+									{% endif %}
 								{% endfor%}							
 							</select>
 						</td>
 						<td>
 							<select name="OrderTypeRows">
 								
-								<option value="Не Сортировать" {% if join_row.ascending == None %} SELECTED {% endif %}>Не Сортировать</option>
-								<option value="По Возрастанию" {% if join_row.ascending == True %} SELECTED {% endif %}>По Возрастанию</option>
-								<option value="По Убыванию" {% if join_row.ascending == False %} SELECTED {% endif %}>По Убыванию</option>
+								<option value="0" {% if join_row.ascending == None %} SELECTED {% endif %}>Не Сортировать</option>
+								<option value="1" {% if join_row.ascending == True %} SELECTED {% endif %}>По Возрастанию</option>
+								<option value="2" {% if join_row.ascending == False %} SELECTED {% endif %}>По Убыванию</option>
 								
 							</select>
 						</td>
@@ -83,7 +87,7 @@
 				<h3>Сортировка</h3>
 				<table id="tab" class="tab">
 					{% for width in widthes%}
-						<col width="{{ width }}">
+						<col width="{{ width+30 }}">
 					{% endfor %}
 					<tr class="elem">
 
@@ -91,6 +95,13 @@
 
 							<th class="elem">
 								<p align="center">
+									<button name="HideField{{i}}" type="submit">
+										{% if i in hidefields %}
+											⨯
+										{% else %}
+											✓
+										{% endif %}
+									</button>
 									<button name="Title{{ titles_origin[i] }}" type="submit">{{ titles[i] }}</button>
 									{% if titles_origin[i] == orderby.name and orderby.ascending == True %}
 										↓
@@ -116,7 +127,7 @@
 						
 							{% for col in jcols %}
 
-								<div class="divTableHead"> 
+								<div class="divTableHead">
 									<center>
 										{{col|safe}}
 									</center>
@@ -125,65 +136,85 @@
 							{% endfor %}
 						</div>
 
-						{% for row in jrows %}
+						{% for row_id in range(jrows|length) %}
 							<div class="divTableRow"> 
 
 								<div class="divTableSideCell">
 									<p>
-										{{row|safe}}
-									</p>
-									<p>
-										<button name="HideRow{{row}}">
-											{% if row in hides %}
-												Раскрыть
-											{% else %}
-												Скрыть
-											{% endif %}
-										</button>
+										{{jrows[row_id] |safe}}
 									</p>
 								</div>
 
-								{% for frow in range(table[row]|length) %}
+								{% for col_id in range(table[ jrows[row_id] ]|length) %}
 								
 									<div class="divTableCell">
-										{% if row not in hides %}
-											{% for elements in table[row][frow] %}
-										
+										{% if table[ jrows[row_id] ][col_id]|length > 0 and (row_id*jcols|length + col_id) not in hidecells %}
+											<button name="HideCell{{row_id*jcols|length + col_id}}">
+												Скрыть ячейку
+											</button>
+											<p></p>
+											{% for elements in table[ jrows[row_id] ][col_id] %}
+											
 												<center>
-													<div class="divDrag" name="Div{{elements}}" id="{{titles[0]}}: {{elements[0]}}">
-														<div class="divDragger" name="Div{{elements}}" id="{{titles[0]}}: {{elements[0]}}">
+													<div class="divDrag" name="Div{{elements[0]}}" id="{{titles[0]}}: {{elements[0]}}">
+														<div class="divDragger" name="Div{{elements[0]}}" id="{{titles[0]}}: {{elements[0]}}">
 															<p>
-																{{row|safe}}
+																{{ jrows[row_id] |safe}}
 															</p>
 															<p>
-																{{jcols[frow]|safe}}
+																{{jcols[col_id]|safe}}
 															</p>
 														</div>
-														<div class="divElements" name="Div{{elements}}">
+														<div class="divElements" name="Div{{elements[0]}}">
 															<p>
-																<button name="HideField{{elements}}">
-																	{% if elements in hides_fields %}
-																		Раскрыть
-																	{% else %}
-																		Скрыть
-																	{% endif %}
+																<button name="EditField{{elements[0]}}">
+																	<font size="5">
+																		✎
+																	</font>
+																</button>
+																<button name="DeleteField{{elements[0]}}">
+																	<font size="5">
+																		⨯
+																	</font>
 																</button>
 															</p>
-															{% if elements not in hides_fields %}
-																{% for field in elements %}
+															{% for field in range(elements|length) %}
+																{% if field not in hidefields %}
 																	<hr color="black" size="1"/>
-																	<p>{{field|safe}}</p>
-																{% endfor %}
-															{% endif %}
+																	<p>{{elements[field]|safe}}</p>
+																{% endif %}
+															{% endfor %}
 															<p></p>
 														</div>
 													</div>
-													<div class="divElements" name="Div{{elements}}" id="divRedBlock"></div>
+													<div class="divElements" name="Div{{elements[0]}}" id="divRedBlock"></div>
 													<p></p>
 
 												</center>
+
 											{% endfor %}
+										{% else %}
+											{% if table[ jrows[row_id] ][col_id]|length > 0 %}
+												<button name="HideCell{{row_id*jcols|length + col_id}}">
+													Показать ячейку
+												</button>
+												<p>
+													Внутри {{table[ jrows[row_id] ][col_id]|length}}
+													{% if 1 < table[ jrows[row_id] ][col_id]|length < 5 %}
+														элемента
+													{% elif table[ jrows[row_id] ][col_id]|length >= 5 %}
+														элементов
+													{% else %}
+														элемент
+													{% endif %}
+												</p>
+											{% else %}
+												<p>
+													Внутри нет элементов
+												</p>	
+											{% endif %}
 										{% endif %}
+										<p></p>
 									</div>
 
 								{% endfor %}

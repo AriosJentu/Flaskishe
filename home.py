@@ -18,7 +18,7 @@ qcount = 1
 
 edit_rows = []
 cmp_queries = []
-hiding_tables = []
+hiding_cells = []
 hiding_fields = []
 
 @app.route("/", methods=["GET", "POST"])
@@ -58,7 +58,7 @@ def open():
 
 		if i[:5] == "Title":
 			
-			title = get_name_from_title(current_table, i[5:])
+			title = i[5:]
 
 			if order_by != None:
 				if "+"+title == order_by:
@@ -254,52 +254,24 @@ def edit():
 @app.route("/overview", methods=["GET", "POST"])
 def overview():
 
-	global join_column, join_row, ordering_column, tables_info, hiding_tables, hiding_fields, current_columns, current_rows
+	global join_column, join_row, ordering_column, tables_info, hiding_cells, current_columns, current_rows, hiding_fields
 
-	col_asc_type = request.form.get("OrderTypeColumns")
-	row_asc_type = request.form.get("OrderTypeRows")
+	col_asc_type = request.form.get("OrderTypeColumns", type=int)
+	row_asc_type = request.form.get("OrderTypeRows", type=int)
 	colname = request.form.get("JoiningTableColumns")
 	rowname = request.form.get("JoiningTableRows")
-	edit_values = str(request.form.get("DatabaseEditor"))
+	edit_values = request.form.get("DatabaseEditor")
 
-	if edit_values != "None" and len(edit_values) > 3 and edit_values[:3] == "Div":
+	if edit_values != None and edit_values != "":
+		print(edit_values)
 
 		columns = [i.name for i in tables_info["SchedItems"]]
 
-		upd_values, cell_from, cell_to = eval(edit_values[3:])
+		edit_values = edit_values.replace("\t", "")
+		obj_id, row_val, col_val = str(edit_values[3:]).split(", ")
+		obj_id = int(obj_id)
 
-		from_row_indx = cell_from//len(current_columns)					
-		from_col_indx = cell_from - from_row_indx*len(current_columns)	
-
-		to_row_indx = cell_to//len(current_columns)						
-		to_col_indx = cell_to - from_row_indx*len(current_columns)			
-
-		upd_from = {}
-		k = 0
-		for col in columns:
-			if col == join_column.name:
-				upd_from[col] = current_columns[from_col_indx]
-			elif col == join_row.name:
-				upd_from[col] = current_rows[from_row_indx]
-			else:
-				upd_from[col] = upd_values[k]
-				k = k+1
-
-		upd_to = {}
-		k = 0
-		for col in columns:
-			if col == join_column.name:
-				upd_to[col] = current_columns[to_col_indx]
-			elif col == join_row.name:
-				upd_to[col] = current_rows[to_row_indx]
-			else:
-				upd_to[col] = upd_values[k]
-				k = k+1
-
-
-		update_record("SchedItems", upd_from, upd_to)
-
-
+		update_sched_record(obj_id, join_column, join_row, col_val, row_val)
 
 
 	joining_columns = None
@@ -314,23 +286,46 @@ def overview():
 			joining_rows = i
 
 
-	rows_asc = True if row_asc_type == "По Возрастанию" else False if row_asc_type == "По Убыванию" else None
-	columns_asc = True if col_asc_type == "По Возрастанию" else False if col_asc_type == "По Убыванию" else None
+	rows_asc = {None:None, 0:None, 1:True, 2:False}[row_asc_type]
+	columns_asc =  {None:None, 0:None, 1:True, 2:False}[col_asc_type]
 
 	for i in request.form:
+		print(i)
 
+	for i in request.form:
 		if i == "Back":
 			return redirect("/")
 
 		if i == "Accept":
 
 			ordering_column.ascending = None
-		
+			
+			if joining_columns.name != join_column.name or join_row.name != joining_rows.name:
+				hiding_cells = []
+				hiding_fields = []
+				
+
 			join_column = joining_columns
 			join_row = joining_rows
 
-			hiding_tables = []
-			hiding_fields = []
+
+		if "HideField" in i:
+
+			hideindex = int(i[9:])
+			if hideindex in hiding_fields:
+				hiding_fields.remove(hideindex)
+			else:
+				hiding_fields.append(hideindex)
+
+		if "HideCell" in i:
+
+			hideindex = int(i[8:])
+			if hideindex in hiding_cells:
+				hiding_cells.remove(hideindex)
+			else:
+				hiding_cells.append(hideindex)
+
+
 
 		if "Title" in i:
 			name = i[5:]
@@ -346,19 +341,6 @@ def overview():
 						ordering_column.ascending = True
 						break
 
-		if "HideRow" in i:
-			row_name = i[7:]
-			if row_name in hiding_tables:
-				hiding_tables.remove(row_name)
-			else:
-				hiding_tables.append(row_name)
-
-		if "HideField" in i:
-			field = eval(i[9:])
-			if field in hiding_fields:
-				hiding_fields.remove(field)
-			else:
-				hiding_fields.append(field)
 
 
 	join_column.ascending = columns_asc
@@ -381,8 +363,8 @@ def overview():
 		join_row=join_row,
 		orderby=ordering_column,
 		columns=[i for i in tables_info["SchedItems"]],
-		hides=hiding_tables,
-		hides_fields=hiding_fields
+		hidecells=hiding_cells,
+		hidefields=hiding_fields
 	)
 
 if __name__ == "__main__":

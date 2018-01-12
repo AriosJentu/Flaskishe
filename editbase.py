@@ -100,3 +100,27 @@ def update_record(table, upd_from, upd_to):
 	)
 	
 	#studb.commit()
+
+def update_sched_record(id_, column, row, colval, rowval):
+
+	query = "SELECT " + column.column_def_val + " FROM "+column.table_from + " WHERE " + column.column_val_from + " == ?"
+	print(query, colval)
+	cursr.execute(query, (colval, ))
+	col_id = cursr.fetchall()[0][0]
+	print(col_id)
+
+	query = "SELECT " + row.column_def_val + " FROM "+row.table_from + " WHERE " + row.column_val_from + " == ?"
+	print(query, rowval)
+	cursr.execute(query, (rowval, ))
+	row_id = cursr.fetchall()[0][0]
+	print(row_id)
+
+	query = "UPDATE SchedItems SET " + column.name + " == ?, " + row.name + " == ? "
+	query += "WHERE ID == ?"
+	
+	print("SCHED UPDATE")
+	print(query, col_id, row_id, id_)
+
+	cursr.execute(query, (col_id, row_id, id_, ))	
+
+#update_sched_record(5, tables_info["SchedItems"][2], tables_info["SchedItems"][-1], "ОСОТ", "Понедельник")

@@ -24,7 +24,7 @@ function dragElement(elemnt) {
 	var width = null, height = null;
 	var isMouseDown = false
 	var curXprev = 0, curYprev = 0;
-	var moveFrom = -1, moveTo = -1;
+	var moveTo = -1;
 	var elemntInner = elemnt.innerHTML;
 
 	elemnt.onmousedown = dragMouseDown;
@@ -41,7 +41,7 @@ function dragElement(elemnt) {
 	var divColumns = document.getElementsByClassName("divTableHead");
 	var divColumnNames = []
 	for (var elem of divColumns) {
-		divColumnNames.push(elem.innerHTML);
+		divColumnNames.push(elem.childNodes[1].innerHTML);
 	}
 
 	var divRows = document.getElementsByClassName("divTableSideCell");
@@ -134,9 +134,6 @@ function dragElement(elemnt) {
 
 		for (var cellId = 0; cellId < cells.length; cellId++) {
 			var cell = cells[cellId];
-			if (cell === divParent) {
-				moveFrom = cellId;
-			}
 		}
 
 		document.onmouseup = closeDragElement;
@@ -169,7 +166,7 @@ function dragElement(elemnt) {
 					var rowId = Math.floor(cellId/divColumns.length);
 					var colId = cellId - rowId*divColumns.length;
 
-					elemnt.innerHTML = divRowNames[rowId] + divColumnNames[colId] + "<p>" + elemnt.getAttribute("id") + "</p>"; 
+					elemnt.innerHTML = "<p>" + divRowNames[rowId] + "</p><p>" + divColumnNames[colId] + "</p><p>" + elemnt.getAttribute("id") + "</p>"; 
 
 					moveTo = cellId;
 					visited = true;
@@ -237,7 +234,10 @@ function dragElement(elemnt) {
  
  		if (moveTo >= 0) {
 
-			var result = elemnt.getAttribute("name") + ", " + moveFrom + ", " + moveTo;
+ 			var rowId = Math.floor(moveTo/divColumns.length);
+			var colId = moveTo - rowId*divColumns.length;
+
+			var result = elemnt.getAttribute("name") + ", " + divRowNames[rowId]  + ", " + divColumnNames[colId];
 			flaskEditor.value = result;
 
 			//location.reload();
