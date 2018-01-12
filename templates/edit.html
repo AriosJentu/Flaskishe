@@ -6,7 +6,7 @@
 
 <body>
 	<center>
-		<form name="Edit" action="/" method="POST">
+		<form name="Edit" action="{{pagetoload}}" method="POST">
 			<h1>Редактор запроса</h1>
 			<p></p>
 			{% if editrows|length > 0 %}
@@ -36,6 +36,8 @@
 						<td id="elem">
 							{% if values[i] == False %}
 								<input name="EditColumn{{ columns[i] }}" value="{{editrows[i]}}"/>
+							{% elif values[i] is string %}
+								<input name="EditColumn{{ columns[i] }}" value="{{editrows[i]}}" READONLY/>
 							{% else %}
 								<select name="EditColumn{{ columns[i] }}">
 									{% for k in values[i] %}

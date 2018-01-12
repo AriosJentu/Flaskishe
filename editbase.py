@@ -8,11 +8,14 @@ def is_id_in_table(table):
 	else:
 		return False
 
-def get_real_values(table, values):
+def get_real_values(table, values, invert=False):
 
 	new_vals = []
 	for k in range(len(values)):
 		clmn = tables_info[table][k]
+		if invert:
+			clmn.column_def_val, clmn.column_val_from = clmn.column_val_from, clmn.column_def_val
+
 		if clmn.table_from != None:
 			
 			query = "SELECT " +clmn.column_def_val+ " FROM " + clmn.table_from
@@ -25,6 +28,9 @@ def get_real_values(table, values):
 
 		else:
 			new_vals.append(values[k])
+
+		if invert:
+			clmn.column_def_val, clmn.column_val_from = clmn.column_val_from, clmn.column_def_val
 
 	return new_vals
 
