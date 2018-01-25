@@ -53,7 +53,10 @@ def get_list_values_of_column(table, column):
 
 def next_id(table):
 	cursr.execute("SELECT Max(ID) FROM "+table)
-	return cursr.fetchall()[0][0] + 1
+	x = cursr.fetchall()
+	if x[0][0] == None:
+		return 1
+	return x[0][0] + 1
 
 def add_record(table, values): #values - list without id
 
