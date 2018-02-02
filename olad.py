@@ -1,4 +1,5 @@
 from columns import tables_info
+from conflicts import get_schedule_conflicts
 from db import *
 
 join_row = tables_info["SchedItems"][-1] #weekday by default for vertical
@@ -73,6 +74,13 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 	fetch = [list(i) for i in cursr.fetchall()]
 
 	#---------------------------------------------------------------------------------------------------------
+
+	query = "SELECT * FROM SchedItems"
+	cursr.execute(query)
+
+	sched_cleared = [list(i) for i in cursr.fetchall()]
+
+	#---------------------------------------------------------------------------------------------------------
 	
 	idx_column = tables_info["SchedItems"].index(joining_column)
 	idx_row = tables_info["SchedItems"].index(joining_row)
@@ -96,4 +104,19 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 		for col in columns:
 			result[row].append(preresult[col][row])
 
-	return result, rows, columns
+
+	#print(rows)
+	#print(columns)
+	#print(fetch[0])
+	#print(sched_cleared[0])
+
+	confs = get_schedule_conflicts(sched_cleared)
+	conflicts = [[], []]
+	for i in confs:
+		conflicts[0].append(i[0])
+		conflicts[1].append(i[1])
+
+	print(conflicts)
+	return result, rows, columns, conflicts
+
+generate_schedule()

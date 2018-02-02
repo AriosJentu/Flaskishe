@@ -146,6 +146,7 @@
 								</div>
 
 								{% for col_id in range(table[ jrows[row_id] ]|length) %}
+
 								
 									<div class="divTableCell">
 										{% if table[ jrows[row_id] ][col_id]|length > 0 and (row_id*jcols|length + col_id) not in hidecells %}
@@ -156,8 +157,8 @@
 											{% for elements in table[ jrows[row_id] ][col_id] %}
 											
 												<center>
-													<div class="divDrag" name="Div{{elements[0]}}" id="{{titles[0]}}: {{elements[0]}}">
-														<div class="divDragger" name="Div{{elements[0]}}" id="{{titles[0]}}: {{elements[0]}}">
+													<div class="divDrag{% if elements[0] in conflicts[0] %}Red{% endif %}" name="Div{{elements[0]}}" id="{{titles[0]}}: {{elements[0]}}">
+														<div class="divDragger{% if elements[0] in conflicts[0] %}Red{% endif %}" name="Div{{elements[0]}}" id="{{titles[0]}}: {{elements[0]}}">
 															<p>
 																{{ jrows[row_id] |safe}}
 															</p>
@@ -165,6 +166,7 @@
 																{{jcols[col_id]|safe}}
 															</p>
 														</div>
+
 														<div class="divElements" name="Div{{elements[0]}}">
 															<p>
 																<button name="EditField{{elements[0]}}">

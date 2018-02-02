@@ -1,8 +1,13 @@
 //dragElement(document.getElementById("divdrg"))
 
 var elements = document.getElementsByClassName("divDragger")
+var elementsRed = document.getElementsByClassName("divDraggerRed")
 
 for (var element of elements) {
+	dragElement(element);
+}
+
+for (var element of elementsRed) {
 	dragElement(element);
 }
 
@@ -67,11 +72,18 @@ function dragElement(elemnt) {
 	}
 
 	var divDragBlocks = document.getElementsByClassName("divDrag");
+	var divDragBlockConflict = document.getElementsByClassName("divDragRed")
 	var divDragger = null;
 
 	var cells = document.getElementsByClassName("divTableCell")
 
 	for (var elem of divDragBlocks) {
+		if (elem.getAttribute("name") === elemnt.getAttribute("name")) {
+			divDragger = elem;
+			divParent = elem.parentNode.parentNode
+		}
+	}
+	for (var elem of divDragBlockConflict) {
 		if (elem.getAttribute("name") === elemnt.getAttribute("name")) {
 			divDragger = elem;
 			divParent = elem.parentNode.parentNode
@@ -88,7 +100,15 @@ function dragElement(elemnt) {
 	function mouseOut(el) {
 		if (!isMouseDown) {
 
-			elemnt.style["background-color"] = "#EEEEEE";
+			console.log(elemnt.getAttribute("class"))
+			if (elemnt.getAttribute("class") === "divDraggerRed") {
+
+				elemnt.style["background-color"] = "#FF9393";
+
+			} else {
+
+				elemnt.style["background-color"] = "#EEEEEE";
+			}
 		}
 	}
 
@@ -214,7 +234,14 @@ function dragElement(elemnt) {
 
 		isMouseDown = false;
 
-		elemnt.style["background-color"] = "#EEEEEE";
+		console.log(elemnt.getAttribute("class"))
+		if (elemnt.getAttribute("class") === "divDraggerRed") {
+
+			elemnt.style["background-color"] = "#FF9393";
+		} else {
+
+			elemnt.style["background-color"] = "#EEEEEE";
+		}
 
 		if (divDragger !== null) {
 			divDragger.style.border = "1px solid black";

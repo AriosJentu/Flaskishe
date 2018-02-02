@@ -400,7 +400,7 @@ def overview():
 
 	join_column.ascending = columns_asc
 	join_row.ascending = rows_asc
-	table, rows, columns = generate_schedule(join_column, join_row, ordering_column)
+	table, rows, columns, conflicts = generate_schedule(join_column, join_row, ordering_column)
 
 	current_columns = columns 
 	current_rows = rows
@@ -418,7 +418,8 @@ def overview():
 		orderby=ordering_column,
 		columns=[i for i in tables_info["SchedItems"]],
 		hidecells=hiding_cells,
-		hidefields=hiding_fields
+		hidefields=hiding_fields,
+		conflicts=conflicts
 	)
 
 if __name__ == "__main__":
