@@ -13,7 +13,7 @@ ordering_column.ascending = None
 
 current_columns, current_rows = [], []
 
-def generate_schedule(joining_column=join_column, joining_row=join_row, order_by=ordering_column):
+def generate_schedule(joining_column=join_column, joining_row=join_row, order_by=ordering_column, full_conflicts=False):
 
 	global current_columns, current_rows
 
@@ -110,13 +110,19 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 	#print(fetch[0])
 	#print(sched_cleared[0])
 
-	confs = get_schedule_conflicts(sched_cleared)
-	conflicts = [[], []]
-	for i in confs:
-		conflicts[0].append(i[0])
-		conflicts[1].append(i[1])
+	if not full_conflicts:
+		confs = get_schedule_conflicts(sched_cleared)
+		print(confs)
+		conflicts = [[], []]
+		for i in confs:
+			conflicts[0].append(i[0])
+			conflicts[1].append(i[1])
 
-	print(conflicts)
+		print(conflicts)
+
+	else:
+		conflicts = get_schedule_conflicts(sched_cleared, full_conflicts)
+		
 	return result, rows, columns, conflicts
 
 generate_schedule()

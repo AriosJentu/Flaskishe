@@ -87,7 +87,7 @@
 				<h3>Сортировка</h3>
 				<table id="tab" class="tab">
 					{% for width in widthes%}
-						<col width="{{ width+30 }}">
+						<col width="{{ width+40 }}">
 					{% endfor %}
 					<tr class="elem">
 
@@ -114,6 +114,20 @@
 						{% endfor %}
 					</tr>
 				</table>
+
+				<p></p>
+				{% if conflicts[0]|length > 0 %}
+					<table>
+						<tr>
+							<td>
+								<p align="center">В базе {{conflicts[0]|length}} конфликт(а/ов)</p> 
+							</td>
+							<td>
+								<button name="CheckConflicts" type="Submit">Посмотреть</button>
+							</td>
+						</tr>
+					</table>
+				{% endif %}
 
 				<p></p>
 				<div class="divTable">
@@ -158,7 +172,14 @@
 											
 												<center>
 													<div class="divDrag{% if elements[0] in conflicts[0] %}Red{% endif %}" name="Div{{elements[0]}}" id="{{titles[0]}}: {{elements[0]}}">
-														<div class="divDragger{% if elements[0] in conflicts[0] %}Red{% endif %}" name="Div{{elements[0]}}" id="{{titles[0]}}: {{elements[0]}}">
+														<div class="divDragger{% if elements[0] in conflicts[0] %}Red{% endif %}" name="Div{{elements[0]}}" id="{{titles[0]}}: {{elements[0]}}"
+															{% if elements[0] in conflicts[0] %}
+																title="{{conflicts[1][ conflicts[0].index(elements[0]) ]}}"
+															{% endif %}
+														>
+															{% if elements[0] in conflicts[0] %}
+																<i><font size=2>Наведите, чтобы узнать о конфликте</font></i>
+															{% endif %}
 															<p>
 																{{ jrows[row_id] |safe}}
 															</p>

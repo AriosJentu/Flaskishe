@@ -3,7 +3,7 @@ from db import *
 from columns import *
 
 wdcnt = 7
-def get_schedule_conflicts(values):
+def get_schedule_conflicts(values=[], full_info=False):
 
 	teacher_time = {}
 	audience_time = {}
@@ -44,6 +44,9 @@ def get_schedule_conflicts(values):
 			conflicts.append((value_id, "Эта группа в это время занята"))
 		else:
 			group_time[pair_g_t] = [value_id]
+
+	if full_info:
+		return teacher_time, audience_time, group_time
 
 	#print()
 	#print(conflicts)

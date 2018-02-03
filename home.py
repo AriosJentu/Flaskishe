@@ -297,6 +297,10 @@ def overview():
 		print(i)
 
 	for i in request.form:
+
+		if i == "CheckConflicts":
+			return redirect("/conflicts")
+
 		if i == "Back":
 			return redirect("/")
 
@@ -421,6 +425,31 @@ def overview():
 		hidefields=hiding_fields,
 		conflicts=conflicts
 	)
+
+
+@app.route("/conflicts", methods=["GET", "POST"])
+def conflicts():
+
+	table, rows, columns, conflicts = generate_schedule(full_conflicts=True)
+
+	print(table)
+	print(rows)
+	print(columns)
+	print(conflicts)
+
+	for i in request.form:
+		if i == "BackOverview":
+			return redirect("/overview")
+
+
+	return render_template(
+		"conflicts.html",
+		table=table,
+		columns=columns,
+		rows=rows,
+		conflicts=conflicts
+	)
+
 
 if __name__ == "__main__":
 	app.run()
