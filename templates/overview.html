@@ -174,7 +174,15 @@
 													<div class="divDrag{% if elements[0] in conflicts[0] %}Red{% endif %}" name="Div{{elements[0]}}" id="{{titles[0]}}: {{elements[0]}}">
 														<div class="divDragger{% if elements[0] in conflicts[0] %}Red{% endif %}" name="Div{{elements[0]}}" id="{{titles[0]}}: {{elements[0]}}"
 															{% if elements[0] in conflicts[0] %}
-																title="{{conflicts[1][ conflicts[0].index(elements[0]) ]}}"
+																title="
+																	{% if conflicts[1][ conflicts[0].index(elements[0]) ] == 0 %}
+																		Этот преподаватель в это время занят
+																	{% elif conflicts[1][ conflicts[0].index(elements[0]) ] == 1 %}
+																		Эта аудитория в это время занята
+																	{% elif conflicts[1][ conflicts[0].index(elements[0]) ] == 2 %}
+																		Эта группа в это время занята
+																	{% endif %}
+																"
 															{% endif %}
 														>
 															{% if elements[0] in conflicts[0] %}

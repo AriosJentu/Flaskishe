@@ -29,19 +29,19 @@ def get_schedule_conflicts(values=[], full_info=False):
 
 		if pair_t_t in teacher_time.keys():
 			teacher_time[pair_t_t].append(value_id)
-			conflicts.append((value_id, "Этот преподаватель в это время занят"))
+			conflicts.append((value_id, 0)) #0 = "Этот преподаватель в это время занят"
 		else:
 			teacher_time[pair_t_t] = [value_id]
 
 		if pair_a_t in audience_time.keys():
 			audience_time[pair_a_t].append(value_id)
-			conflicts.append((value_id, "Эта аудитория в это время занята"))
+			conflicts.append((value_id, 1)) #1 = "Эта аудитория в это время занята"
 		else:
 			audience_time[pair_a_t] = [value_id]
 
 		if pair_g_t in group_time.keys() and teacher_id < 10000:
 			group_time[pair_g_t].append(value_id)
-			conflicts.append((value_id, "Эта группа в это время занята"))
+			conflicts.append((value_id, 2)) #2 = "Эта группа в это время занята"
 		else:
 			group_time[pair_g_t] = [value_id]
 
@@ -52,15 +52,15 @@ def get_schedule_conflicts(values=[], full_info=False):
 	#print(conflicts)
 	for i, v in teacher_time.items():
 		if len(v) > 1:
-			conflicts.append((v[0], "Этот преподаватель в это время занят"))
+			conflicts.append((v[0], 0))
 				
 	for i, v in audience_time.items():
 		if len(v) > 1:
-			conflicts.append((v[0], "Эта аудитория в это время занята"))
+			conflicts.append((v[0], 1))
 				
 	for i, v in group_time.items():
 		if len(v) > 1:
-			conflicts.append((v[0], "Эта группа в это время занята"))
+			conflicts.append((v[0], 2))
 
 
 	#print(teacher_time.values())

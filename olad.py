@@ -13,6 +13,32 @@ ordering_column.ascending = None
 
 current_columns, current_rows = [], []
 
+class SchedElement:
+
+	def __init__(self, lesson, subject, audience, group, teacher, ltype, weekday, conflict=1):
+
+		self.lesson = lesson
+		self.subject = subject
+		self.audience = audience
+		self.group = group
+		self.teacher = teacher
+		self.ltype = ltype
+		self.weekday = weekday
+		self.conflict = conflict
+
+	def __str__(self):
+		return \
+			"Lesson: " + str(self.lesson) + "\n" + \
+			"Subject: " + str(self.subject) + "\n" + \
+			"Audience: " + str(self.audience) + "\n" + \
+			"Group: " + str(self.group) + "\n" + \
+			"Teacher: " + str(self.teacher) + "\n" + \
+			"LessonType: " + str(self.ltype) + "\n" + \
+			"WeekDay: " + str(self.weekday) + "\n" + \
+			"ConflictID: " + str(self.conflict) + "\n\n"
+
+
+
 def generate_schedule(joining_column=join_column, joining_row=join_row, order_by=ordering_column, full_conflicts=False):
 
 	global current_columns, current_rows
@@ -105,24 +131,19 @@ def generate_schedule(joining_column=join_column, joining_row=join_row, order_by
 			result[row].append(preresult[col][row])
 
 
-	#print(rows)
-	#print(columns)
-	#print(fetch[0])
-	#print(sched_cleared[0])
+	confs = get_schedule_conflicts(sched_cleared)
+	print(confs)
+	conflicts = [[], []]
+	for i in confs:
+		conflicts[0].append(i[0])
+		conflicts[1].append(i[1])
 
-	if not full_conflicts:
-		confs = get_schedule_conflicts(sched_cleared)
-		print(confs)
-		conflicts = [[], []]
-		for i in confs:
-			conflicts[0].append(i[0])
-			conflicts[1].append(i[1])
-
-		print(conflicts)
-
-	else:
-		conflicts = get_schedule_conflicts(sched_cleared, full_conflicts)
+	if full_conflicts:
+		print(fetch[0][1:])
+		result = {i[0]:SchedElement(*(i[1:]+[ conflicts[1][ conflicts[0].index(i[0]) ] ])) for i in fetch if i[0] in conflicts[0]}
+		return result
 		
+	#print(sched_cleared)
 	return result, rows, columns, conflicts
 
 generate_schedule()

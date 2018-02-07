@@ -430,12 +430,13 @@ def overview():
 @app.route("/conflicts", methods=["GET", "POST"])
 def conflicts():
 
-	table, rows, columns, conflicts = generate_schedule(full_conflicts=True)
+	table = generate_schedule(full_conflicts=True)
 
 	print(table)
-	print(rows)
-	print(columns)
-	print(conflicts)
+	for i, v in table.items():
+		print(i)
+		print(v)
+		print()
 
 	for i in request.form:
 		if i == "BackOverview":
@@ -444,10 +445,7 @@ def conflicts():
 
 	return render_template(
 		"conflicts.html",
-		table=table,
-		columns=columns,
-		rows=rows,
-		conflicts=conflicts
+		table=table
 	)
 
 
