@@ -21,6 +21,7 @@ cmp_queries = []
 hiding_cells = []
 hiding_fields = []
 
+
 def array(string):
 	return [i[1:-1] if i.find("'") >= 0 or i.find('"') >= 0 else int(i) for i in string[1:-1].split(", ")]
 
@@ -258,7 +259,7 @@ edit_field = -1
 @app.route("/overview", methods=["GET", "POST"])
 def overview():
 
-	global join_column, join_row, ordering_column, tables_info, hiding_cells, current_columns, current_rows, hiding_fields, edit_field
+	global join_column, join_row, ordering_column, tables_info, hiding_cells, current_columns, current_rows, hiding_fields, edit_field, is_conflict_table
 
 	col_asc_type = request.form.get("OrderTypeColumns", type=int)
 	row_asc_type = request.form.get("OrderTypeRows", type=int)
@@ -267,7 +268,7 @@ def overview():
 	edit_values = request.form.get("DatabaseEditor")
 
 	if edit_values != None and edit_values != "":
-		print(edit_values)
+		#print(edit_values)
 
 		columns = [i.name for i in tables_info["SchedItems"]]
 
@@ -293,10 +294,13 @@ def overview():
 	rows_asc = {None:None, 0:None, 1:True, 2:False}[row_asc_type]
 	columns_asc =  {None:None, 0:None, 1:True, 2:False}[col_asc_type]
 
-	for i in request.form:
-		print(i)
+	#for i in request.form:
+	#	print(i)
 
 	for i in request.form:
+
+		if i == "SwitchTable":
+			is_conflict_table = not is_conflict_table
 
 		if i == "CheckConflicts":
 			return redirect("/conflicts")
@@ -401,10 +405,11 @@ def overview():
 						break
 
 
+	print("Changed: "+str(is_conflict_table))
 
 	join_column.ascending = columns_asc
 	join_row.ascending = rows_asc
-	table, rows, columns, conflicts = generate_schedule(join_column, join_row, ordering_column)
+	table, rows, columns, conflicts = generate_schedule(join_column, join_row, ordering_column, icf=is_conflict_table)
 
 	current_columns = columns 
 	current_rows = rows
@@ -423,14 +428,17 @@ def overview():
 		columns=[i for i in tables_info["SchedItems"]],
 		hidecells=hiding_cells,
 		hidefields=hiding_fields,
-		conflicts=conflicts
+		conflicts=conflicts,
+		iscnftab=is_conflict_table
 	)
 
 
 @app.route("/conflicts", methods=["GET", "POST"])
 def conflicts():
 
-	table, tt, at, gt = generate_schedule(full_conflicts=True)
+	global is_conflict_table
+
+	table, tt, at, gt = generate_schedule(full_conflicts=True, icf=is_conflict_table)
 
 	for i, v in table.items():
 		print(i)

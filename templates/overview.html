@@ -7,6 +7,13 @@
 <body>
 	<form name="Overview" action="/overview" method='POST'>
 		<button name="Back" type="submit">Вернуться</button>
+		<button name="SwitchTable" type="submit">
+			{% if iscnftab %}
+				Переключиться на основную таблицу
+			{% else %}
+				Переключиться на таблицу с конфликтами
+			{% endif %}
+		</button>
 		<center>
 			<!--p>Debug:</p-->
 			<p id="titledebug"></p>
