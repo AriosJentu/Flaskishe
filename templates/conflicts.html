@@ -6,5 +6,192 @@
 <body>
 	<form name="Conflicts" action="/conflicts" method='POST'>
 		<button name="BackOverview" type="submit">Вернуться</button>
+
+		<center>
+			
+			<p></p>
+
+			<h1>Обзор Конфликтов</h1>
+			<p></p>
+		
+			{% if teacher_time|length > 0 %}
+				<font size=4><b>Конфликт</b> <i>Преподаватель-Время</i></font>
+				<p></p>
+
+				<font size=3>
+					{% for tab in teacher_time %}
+						<div class="divTable">
+							<div class="divTableBody">
+
+								<div class="divTableRow">
+						
+									<div class="divTableSideHead" style="width:150; background-color: #93FF93"></div>
+									<div class="divTableHead"  style="width:{{280*(tab[1]|length)}}; background-color: #FF9393">
+										{{ table[tab[1][0]].weekday }}, {{table[tab[1][0]].lesson}}
+									</div>
+								
+								</div>
+
+								<div class="divTableRow">
+
+									<div class="divTableSideCell" style="background-color: #FF9393">
+										<p>{{ table[tab[1][0]].teacher }}</p>
+									</div>
+
+									<div class="divTableCell">
+										<center>
+											
+											<table>
+												<tr>
+													{% for eid in tab[1] %}
+														<td>
+															<div class="divDragRed" style="width:280">
+																<div class="divElements">
+																	<p>{{table[eid].subject}}</p>
+																	<hr color="black" size="1"/>
+																	<p>{{table[eid].group}}</p>
+																	<hr color="black" size="1"/>
+																	<p>{{table[eid].audience}}</p>
+																	<hr color="black" size="1"/>
+																	<p>{{table[eid].ltype}}</p>
+																</div>
+															</div>
+														</td>
+													{% endfor %}
+												</tr>
+											</table>
+										
+										</center>
+									</div>
+								</div>
+
+							</div>
+						</div>
+						<p></p>
+					{% endfor %}
+				</font>
+
+			{% endif %}
+
+			{% if audience_time|length > 0 %}
+				<font size=4><b>Конфликт</b> <i>Аудитория-Время</i></font>
+				<p></p>
+
+				<font size=3>
+					{% for tab in audience_time %}
+						<div class="divTable">
+							<div class="divTableBody">
+
+								<div class="divTableRow">
+						
+									<div class="divTableSideHead" style="width:60; background-color: #93FF93"></div>
+									<div class="divTableHead"  style="width:{{280*(tab[1]|length)}}; background-color: #FF9393">
+										{{ table[tab[1][0]].weekday }}, {{table[tab[1][0]].lesson}}
+									</div>
+								
+								</div>
+
+								<div class="divTableRow">
+
+									<div class="divTableSideCell" style="background-color: #FF9393">
+										<p>{{ table[tab[1][0]].audience }}</p>
+									</div>
+
+									<div class="divTableCell">
+										<center>
+											
+											<table>
+												<tr>
+													{% for eid in tab[1] %}
+														<td>
+															<div class="divDragRed" style="width:280">
+																<div class="divElements">
+																	<p>{{table[eid].subject}}</p>
+																	<hr color="black" size="1"/>
+																	<p>{{table[eid].group}}</p>
+																	<hr color="black" size="1"/>
+																	<p>{{table[eid].teacher}}</p>
+																	<hr color="black" size="1"/>
+																	<p>{{table[eid].ltype}}</p>
+																</div>
+															</div>
+														</td>
+													{% endfor %}
+												</tr>
+											</table>
+										
+										</center>
+									</div>
+								</div>
+
+							</div>
+						</div>
+						<p></p>
+					{% endfor %}
+				</font>
+
+			{% endif %}
+
+			{% if group_time|length > 0 %}
+				<font size=4><b>Конфликт</b> <i>Группа-Время</i></font>
+				<p></p>
+
+				<font size=3>
+					{% for tab in group_time %}
+						<div class="divTable">
+							<div class="divTableBody">
+
+								<div class="divTableRow">
+						
+									<div class="divTableSideHead" style="width:90; background-color: #93FF93"></div>
+									<div class="divTableHead"  style="width:{{280*(tab[1]|length)}}; background-color: #FF9393">
+										{{ table[tab[1][0]].weekday }}, {{table[tab[1][0]].lesson}}
+									</div>
+								
+								</div>
+
+								<div class="divTableRow">
+
+									<div class="divTableSideCell" style="background-color: #FF9393">
+										<p>{{ table[tab[1][0]].group }}</p>
+									</div>
+
+									<div class="divTableCell">
+										<center>
+											
+											<table>
+												<tr>
+													{% for eid in tab[1] %}
+														<td>
+															<div class="divDragRed" style="width:280">
+																<div class="divElements">
+																	<p>{{table[eid].subject}}</p>
+																	<hr color="black" size="1"/>
+																	<p>{{table[eid].teacher}}</p>
+																	<hr color="black" size="1"/>
+																	<p>{{table[eid].audience}}</p>
+																	<hr color="black" size="1"/>
+																	<p>{{table[eid].ltype}}</p>
+																</div>
+															</div>
+														</td>
+													{% endfor %}
+												</tr>
+											</table>
+										
+										</center>
+									</div>
+								</div>
+
+							</div>
+						</div>
+						<p></p>
+					{% endfor %}
+				</font>
+
+			{% endif %}
+
+		</center>
+	
 	</form>
 </body>

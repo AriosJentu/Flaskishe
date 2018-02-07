@@ -88,6 +88,31 @@ tables_info = {
 
 		Column(name="WeekdayID", title="День Недели", width=100, 
 			table_from="Weekdays", column_def_val="ID", column_val_from="Name"),
+	],
+	"SchedItemsCnf": [
+		Column(name="ID", title="ID", width=50),
+
+		Column(name="LessonID", title="Пара", width=50, table_from="Lessons", 
+			column_def_val="ID", column_val_from="Name"),
+
+		Column(name="SubjID", title="Предмет", width=150, table_from="Subjects", 
+			column_def_val="ID", column_val_from="Name"),
+
+		Column(name="AudienceID", title="Аудитория", width=90, 
+			table_from="Audiences", column_def_val="ID", 
+			column_val_from="Name"),
+
+		Column(name="GroupID", title="Группа", width=80, table_from="Groups", 
+			column_def_val="ID", column_val_from="Name"),
+
+		Column(name="TeacherID", title="Преподаватель", width=150, 
+			table_from="Teachers", column_def_val="ID", column_val_from="Name"),
+
+		Column(name="TypeID", title="Тип", width=50, table_from="LessonTypes", 
+			column_def_val="ID", column_val_from="Name"),
+
+		Column(name="WeekdayID", title="День Недели", width=100, 
+			table_from="Weekdays", column_def_val="ID", column_val_from="Name"),
 	]
 
 }

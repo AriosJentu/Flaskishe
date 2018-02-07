@@ -52,9 +52,9 @@ shedule_dict = {
 	10 : [	10,	2,			3,			13,		1,		2,			3,			5			],
 	11 : [	11,	4,			6,			7,		1,		3,			2,			2			],
 	12 : [	12,	3,			10,			9,		1,		7,			1,			5			],
-	13 : [	13,	5,			7,			14,		1,		-1,			1,			2			],
+	13 : [	13,	5,			7,			14,		1,		12,			1,			2			],
 	14 : [	14,	4,			10,			9,		1,		7,			2,			5			],
-	15 : [	15,	5,			7,			14,		1,		-1,			1,			5			],
+	15 : [	15,	5,			7,			14,		1,		12,			1,			5			],
 	16 : [	16,	2,			2,			8,		1,		1,			1,			3			],
 	17 : [	17,	3,			4,			7,		1,		4,			2,			3			],
 	18 : [	18,	4,			3,			12,		1,		8,			2,			3			],
@@ -64,6 +64,34 @@ shedule_dict = {
 	22 : [	22,	3,			9,			11,		1,		8,			2,			4			],
 
 }
+shedule_dict_conflicts = {
+
+	#ID: [	ID,	LESSON_ID,	SUBJ_ID,	AUD_ID,	GRP_ID,	TCHR_ID,	TYPE_ID,	WEEKDAY_ID	]
+	1  : [	1,	1,			2,			2,		1,		1,			2,			1			],
+	2  : [	2,	1,			1,			13,		1,		1,			1,			1			],
+	3  : [	3,	1,			4,			2,		1,		11,			1,			1			],
+	4  : [	4,	5,			3,			15,		1,		11,			1,			1			],
+	5  : [	5,	3,			3,			2,		1,		11,			3,			1			],
+	6  : [	6,	4,			3,			1,		1,		6,			2,			1			],
+	7  : [	7,	1,			8,			13,		1,		6,			3,			5			],
+	8  : [	8,	2,			4,			6,		1,		4,			1,			2			],
+	9  : [	9,	3,			6,			7,		1,		6,			1,			2			],
+	10 : [	10,	2,			3,			3,		1,		4,			3,			5			],
+	11 : [	11,	4,			6,			4,		1,		2,			2,			2			],
+	12 : [	12,	5,			10,			9,		1,		8,			1,			5			],
+	13 : [	13,	5,			7,			5,		1,		12,			1,			2			],
+	14 : [	14,	4,			10,			9,		1,		7,			2,			5			],
+	15 : [	15,	5,			7,			4,		1,		4,			1,			5			],
+	16 : [	16,	3,			2,			8,		1,		5,			1,			3			],
+	17 : [	17,	3,			4,			7,		1,		4,			2,			3			],
+	18 : [	18,	4,			3,			12,		1,		4,			2,			3			],
+	19 : [	19,	1,			8,			11,		1,		5,			2,			3			],
+	20 : [	20,	1,			9,			6,		1,		6,			3,			4			],
+	21 : [	21,	4,			9,			5,		1,		8,			3,			4			],
+	22 : [	22,	3,			9,			11,		1,		7,			2,			4			],
+
+}
+
 
 subj_groups = {
 
@@ -118,8 +146,10 @@ cursr.execute("CREATE TABLE `Groups` ( `ID` INTEGER NOT NULL DEFAULT -1, `Name` 
 cursr.execute("CREATE TABLE `LessonTypes` ( `ID` INTEGER NOT NULL, `Name` TEXT )")
 #Lessons:
 cursr.execute("CREATE TABLE `Lessons` ( `ID` INTEGER NOT NULL DEFAULT -1, `Name` TEXT, `OrderNumber` TEXT )")
-#Shedule Items:
+#Schedule Items:
 cursr.execute("CREATE TABLE `SchedItems` ( `ID` INTEGER NOT NULL DEFAULT -1, `LessonID` INTEGER, `SubjID` INTEGER, `AudienceID` INTEGER, `GroupID` INTEGER, `TeacherID` INTEGER, `TypeID` INTEGER, `WeekdayID` INTEGER )")
+#Schedule Items with Conflicts
+cursr.execute("CREATE TABLE `SchedItemsCnf` ( `ID` INTEGER NOT NULL DEFAULT -1, `LessonID` INTEGER, `SubjID` INTEGER, `AudienceID` INTEGER, `GroupID` INTEGER, `TeacherID` INTEGER, `TypeID` INTEGER, `WeekdayID` INTEGER )")
 #Subjects for Group:
 cursr.execute("CREATE TABLE `SubjectGroup` ( `SubjID` INTEGER, `GroupID` INTEGER )")
 #Subject Teacher:
@@ -151,6 +181,10 @@ for i in range(7):
 #SCHEDULE ITEMS:
 for _, v in shedule_dict.items():
 	cursr.execute("INSERT INTO SchedItems VALUES ({}, {}, {}, {}, {}, {}, {}, {})".format(*v))
+
+#SCHEDULE ITEMS CONFLICTS:
+for _, v in shedule_dict_conflicts.items():
+	cursr.execute("INSERT INTO SchedItemsCnf VALUES ({}, {}, {}, {}, {}, {}, {}, {})".format(*v))
 
 #SUBJECT GROUP:
 for _, v in subj_groups.items():

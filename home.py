@@ -430,22 +430,45 @@ def overview():
 @app.route("/conflicts", methods=["GET", "POST"])
 def conflicts():
 
-	table = generate_schedule(full_conflicts=True)
+	table, tt, at, gt = generate_schedule(full_conflicts=True)
 
-	print(table)
 	for i, v in table.items():
 		print(i)
 		print(v)
 		print()
 
+	ntt = []
+	for k, v in tt.items():
+		if len(v) > 1:
+			ntt.append([k, v])
+
+	nat = []
+	for k, v in at.items():
+		if len(v) > 1:
+			nat.append([k, v])
+
+	ngt = []
+	for k, v in gt.items():
+		if len(v) > 1:
+			ngt.append([k, v])
+
+	print("Teacher-Time")
+	print(ntt)
+	print("Audience-Time")
+	print(nat)
+	print("Group-Time")
+	print(ngt)
+
 	for i in request.form:
 		if i == "BackOverview":
 			return redirect("/overview")
 
-
 	return render_template(
 		"conflicts.html",
-		table=table
+		table=table,
+		teacher_time=ntt,
+		audience_time=nat,
+		group_time=ngt
 	)
 
 
